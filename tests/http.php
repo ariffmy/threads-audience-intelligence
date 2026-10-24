@@ -117,12 +117,15 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
             check($pdo->query('SELECT display_timezone FROM organizations WHERE id=2')->fetchColumn() === 'Asia/Kuala_Lumpur');
             check($client('/settings', ['_csrf' => $token, 'timezone' => 'invalid'])['status'] === 422);
         });
-        $suite->test('HTTP status and Fetch JSON expose safe live health data', static function () use ($client): void {
+        $suite->test('HTTP status and Fetch JSON expose safe live health data', static function () use ($client, $pdo, $config): void {
+            $queue = new \Tai\Bootstrap\QueueComposition($pdo, $config, new \Tai\Shared\Infrastructure\Logger($config->storage('logs')));
+            $queue->queue->dispatch('2', 'demo.failure', ['mode' => 'permanent'], 'other-tenant-http');
             check($client('/status')['status'] === 200);
-            $response = $client('/status.json', null, 'admin', ['Accept: application/json']);
+            $response = $client('/status.json?organization_id=2', null, 'admin', ['Accept: application/json']);
             check($response['status'] === 200);
             $data = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
-            check($data['phase'] === 1 && count($data['migrations']) === 6);
+            check($data['phase'] === 2 && count($data['migrations']) === 15);
+            check($data['queue']['last_success_at'] === null && $data['queue']['counts']['ready'] === 0);
             check($data['integrations']['threads'] === 'Not implemented');
             foreach (['password', 'app.key', 'token_ciphertext', 'C:\\', 'D:\\'] as $secret) check(!str_contains($response['body'], $secret));
         });

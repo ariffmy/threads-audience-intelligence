@@ -1,11 +1,17 @@
 # Database design
 
-Status: logical target design for MariaDB 10.11, with the Phase 1 identity/audit subset implemented. Local execution used MariaDB 12.3.3; 10.11 execution remains unverified.
+Status: logical target design for MariaDB 10.11; Phase 1 identity/audit and Phase 2 synthetic queue/privacy subsets implemented. Local execution used MariaDB 12.3.3; 10.11 execution remains unverified.
 Planning date: 24 October 2026.
+
+## Implemented Phase 2 boundary (25 October 2026)
+
+The original six SQL migrations are unchanged. Nine additive one-statement migrations, `0007`–`0015`, create `privacy_scopes`, `jobs`, `job_attempts`, `worker_runs`, `scheduled_tasks`, `retention_policies`, `deletion_requests`, `demo_effects` and `private_files`. Their actual SQL checks/indexes/FKs are authoritative; the conceptual tables below are future design. The existing organization privacy epoch remains canonical; synthetic deletion updates it, data version and the scope mirror/block atomically. This blocks demo workload without disabling administrator health/login. Child attempts/effects have composite organization/job FKs. Files carry opaque keys, ready state, epoch and expiry. Jobs contain no account/source/parent references before their real parents exist, and payloads reject those fields. `dispatch_key` implements the proposed idempotency key; `finished_at` is completion time and errors are allowlisted codes.
+
+Clean fifteen-migration installation, six-to-fifteen upgrade and rerun were exercised on MariaDB 12.3.3 only. The runner now records phase-2 release metadata; old applied history stays intact. Minimal suppression/deletion state persists beyond ordinary logs to prevent restore replay. Provider budgets/request controls, account/source suppression and report manifests await their modules. See [QUEUE_ARCHITECTURE.md](QUEUE_ARCHITECTURE.md), [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md) and [CRON_SETUP.md](CRON_SETUP.md) for implementation differences, DDL recovery and rollback compatibility. The Phase 1 paragraph below is historical.
 
 ## Implemented Phase 1 boundary
 
-Exactly six numbered migrations create `organizations`, `users`, `memberships`, `auth_sessions`, `login_throttles` and `audit_events`. The migration runner creates its own `schema_migrations` registry. The immutable SQL files are authoritative for their exact implemented fields and indexes. Only one administrator and one organization can be initialized by the supported CLI. `auth_sessions` includes `organization_id` and a composite membership FK, strengthening active-context isolation compared with the original global-session proposal below. No invitations, reset tokens, account grants, OAuth, queue, content or analysis tables have been created. All other entities in this document remain future proposals, not a migration backlog automatically authorized for Phase 1. See [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md) for migration verification and limitations.
+At the historical Phase 1 checkpoint, six migrations created `organizations`, `users`, `memberships`, `auth_sessions`, `login_throttles` and `audit_events`, plus the runner-owned registry. The SQL files are unchanged. Only one administrator/organization can be provisioned; sessions have a composite membership FK. Phase 2 now adds the tables listed above. Invitations, reset tokens, account grants, OAuth, content and analysis remain unimplemented. See [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md) for the earlier evidence.
 
 ## 1. Conventions and integrity rules
 

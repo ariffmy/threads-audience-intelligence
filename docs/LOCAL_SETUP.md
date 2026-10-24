@@ -1,4 +1,6 @@
-# Phase 1 local setup and verification
+# Local setup and verification
+
+Phase 2 update (25 October 2026): preserve existing configuration/administrator and apply the nine additive migrations. Queue commands and proposed cron setup are in [CRON_SETUP.md](CRON_SETUP.md); privacy scope and optional independent ledger settings are in [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md). Stop after Phase 2; no Phase 3/provider or production work is authorized.
 
 This guide runs the existing personal application on a development computer. It does not authorize production access or deployment. Use a dedicated local database and private configuration. There is one administrator and one organization; no public registration, invitations or organization-management UI.
 
@@ -22,7 +24,7 @@ Use the same PHP 8.5 binary for commands and the local web server. Do not change
 
 ## 2. Create a local database and identities
 
-In the existing local database administration tool, create `threads_audience_local` using InnoDB and `utf8mb4_unicode_ci`. Provision a runtime identity with SELECT, INSERT, UPDATE and DELETE on that database only. Provision a separate local migration identity with the DDL privileges needed to create the six tables, foreign keys and indexes, plus the DML needed for migration history and initial administrator creation. Keep both passwords private.
+In the existing local database administration tool, create `threads_audience_local` using InnoDB and `utf8mb4_unicode_ci`. Provision a runtime identity with SELECT, INSERT, UPDATE and DELETE on that database only. Provision a separate local migration identity with the DDL privileges needed to create the fifteen tables, foreign keys and indexes, plus the DML needed for migration history and initial administrator creation. Keep both passwords private.
 
 Example SQL template for a local operator to adapt; replace both password placeholders before executing in a private administration session. These statements have not been applied by this guide:
 
@@ -76,7 +78,7 @@ php bin/console.php migrate
 php bin/console.php migrate:status
 ```
 
-Each command should exit zero. Migration status should list exactly six applied migrations. A repeat `migrate` should apply zero. The runner creates its own `schema_migrations` table, holds a database advisory lock and checks SHA-256 checksums. Migrations are immutable after application. HTTP requests never migrate the database.
+Each command should exit zero. Migration status should list exactly fifteen applied migrations. Upgrade applies nine, a fresh install fifteen, and a repeat zero. The runner creates its own `schema_migrations` table, holds a database advisory lock and checks SHA-256 checksums. Migrations are immutable after application. HTTP requests never migrate the database.
 
 MariaDB DDL can commit independently of the migration journal. A started/failed row, missing historical file or checksum mismatch stops migration. Do not edit SQL to force success or blindly rerun DDL. Inspect the local journal and actual table state, preserve a backup, and reconcile through a reviewed operator procedure or restore a known clean local backup. No automatic down/repair operation is provided.
 
@@ -101,7 +103,7 @@ try {
 
 The stdin mode reads one line without confirmation; choose the password carefully. PowerShell briefly holds a plaintext copy in memory; this is not a guarantee of erasure from managed memory. On a supported POSIX terminal, omit `--password-stdin` to use PHP's hidden entry/confirmation prompt (`stty` and `exec` must be available). Neither path prints the password.
 
-Bootstrap requires all six migrations and refuses initialization if **any** user or organization already exists. It atomically creates one administrator, one personal organization, owner membership and an audit event. It cannot add a second administrator or reset a lost password. Email editing and self-service password recovery are outside Phase 1. A signed-in administrator can change their password from Profile; this signs out every session.
+Bootstrap requires all migrations and refuses initialization if **any** user or organization already exists. It atomically creates one administrator, one personal organization, owner membership and an audit event. It cannot add a second administrator or reset a lost password. Email editing and self-service password recovery are outside Phase 1. A signed-in administrator can change their password from Profile; this signs out every session.
 
 ## 6. Run locally
 
@@ -139,7 +141,7 @@ if ($testExit -ne 0) { throw 'Phase 1 tests failed.' }
 
 The local test operator needs CREATE/DROP DATABASE and DDL/DML in newly created test databases, plus local subprocess/socket access. It is separate from the limited application runtime identity. The suite creates a random `tai_test_<16 hex>` database and verifies an ownership marker before deleting it. It does not load the application's local config or select an existing application database. Never supply production credentials. Interrupted test processes can leave private runtime files or a test database; inspect ownership and markers before any manual cleanup.
 
-The complete recorded run has 50 tests. Missing cURL/proc_open can skip HTTP tests; a missing database or invalid credentials fails the environment setup. Read the final passed/failed/skipped totals and actual engine version. Test evidence and remaining target-host checks are in [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md).
+The Phase 1 baseline had 50 tests. See PHASE2_COMPLETION_REPORT.md for the current full-suite result. Missing cURL/proc_open can skip HTTP tests; a missing database or invalid credentials fails the environment setup. Read the final passed/failed/skipped totals and actual engine version. Test evidence and remaining target-host checks are in [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md).
 
 PHP syntax checks (no dependencies):
 
@@ -155,7 +157,7 @@ foreach ($file in $phpFiles) {
 
 Operational logs are JSON lines under private `storage/logs`; database audit events contain allowlisted action metadata. Requests return a correlation reference instead of credentials or exception details. Initial defaults: 30-minute idle sessions, 12-hour absolute sessions, 30-day operational logs and 90-day audit events. Login limits count every attempt, successful or failed: five per normalized email and thirty per IP in a 15-minute fixed window. These are small personal-use defaults, not distributed abuse protection.
 
-Run `php bin/console.php maintenance:prune` manually to remove bounded expired auth/audit rows and old private log/session files. Each table deletion is capped at 500 rows; each directory visit is capped at 500 entries. No cron is installed and no background queue exists. Monitor growing directories: the current bounded file scan has no persisted cursor, so it does not guarantee progress past the first 500 entries. Revisit that operational limit before higher-volume use. Expiry checks revoke access independently of physical cleanup.
+Run `php bin/console.php maintenance:prune --organization=<organization-id>` manually to remove bounded expired auth/audit rows and old private log/session files. Each table deletion is capped at 500 rows; each directory visit is capped at 500 entries. No cron is installed; the Phase 2 queue and hourly maintenance schedule run only when the CLI worker is invoked. Monitor growing directories: the current bounded file scan has no persisted cursor, so it does not guarantee progress past the first 500 entries. Revisit that operational limit before higher-volume use. Expiry checks revoke access independently of physical cleanup.
 
 - Connection failure: check the private local DB settings, identity host grants and `db:check`. Do not print credentials or enable public PHP error output.
 - HTTP 400: use the configured origin/port and transport. Do not mix hostnames.
@@ -165,4 +167,4 @@ Run `php bin/console.php maintenance:prune` manually to remove bounded expired a
 - HTTP 503: check private configuration/storage, completed migrations and local database availability. The fallback intentionally avoids database secrets and stack traces.
 - Missing styling: ensure `-t public`, the dev router, and vendored asset paths are intact. Do not replace self-hosted assets with an unreviewed CDN dependency.
 
-Linux/cPanel file ownership, actual HTTPS behavior, web/CLI PHP parity, MariaDB 10.11 execution, resource limits and backup/restore still need authorized staging checks. See [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md). Stop after Phase 1 review; do not start the queue or connect external APIs without the next approval.
+Linux/cPanel file ownership, actual HTTPS behavior, web/CLI PHP parity, MariaDB 10.11 execution, resource limits and backup/restore still need authorized staging checks. See [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md). Stop after Phase 2 review; do not begin Phase 3, connect external APIs or deploy without new explicit approval.

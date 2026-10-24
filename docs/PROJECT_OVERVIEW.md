@@ -1,7 +1,9 @@
 # Threads Audience Intelligence: project overview
 
-Status: Phase 1 implemented and locally verified; completion awaits user review. Later phases remain proposed and require approval.
+Status: Phase 1 preserved at `8be29a7`; Phase 2 explicitly authorized on 25 October 2026 and implemented for synthetic/operational work. Phase 3 and later require new approval.
 Planning date: 24 October 2026 (Asia/Kuala_Lumpur).
+
+Phase 2 update: nine additive migrations now support the synthetic queue, finite CLI worker, scoped privacy/retention, independent signed deletion ledger, private synthetic artifact inventory and live operational status. The original collection/analysis/report proposals below remain future work. See [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md), [QUEUE_ARCHITECTURE.md](QUEUE_ARCHITECTURE.md) and [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md) for current contracts and evidence. No provider or production access is authorized.
 
 ## 1. Purpose and scope
 
@@ -9,7 +11,7 @@ Build a web application for people analyzing replies to Threads posts belonging 
 
 The approved first release is a personal installation with one administrator and one organization. There is no public registration, invitation flow, organization management interface, subscription or billing. Tenant-aware storage remains the isolation boundary for future expansion; multiple authorized Threads accounts belong to later phases. A local administrator role never substitutes for the Threads account holder's OAuth authorization.
 
-Phase 0 produced the original planning package. Phase 1 subsequently added the foundation, six identity/audit migrations, administrator authentication and six page types. The remaining collection, queue, analysis and reporting design is a future proposal. No live provider integration or production change has been made. Actual files, checks and limitations are recorded in [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md); installation is documented in [LOCAL_SETUP.md](LOCAL_SETUP.md).
+Phase 0 produced the planning package. Phase 1 added the foundation, six identity/audit migrations, administrator authentication and six page types. Phase 2 adds the synthetic queue/privacy operations described above. Collection, analysis and reporting remain future proposals. No live provider integration or production change has been made. Current evidence is in [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md); installation is documented in [LOCAL_SETUP.md](LOCAL_SETUP.md).
 
 ## 2. Required runtime
 
@@ -116,4 +118,4 @@ Performance acceptance uses a synthetic fixture of 100 posts and 10,000 replies:
 5. [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md): cPanel layout, release, rollback and operations.
 6. [../AGENTS.md](../AGENTS.md): binding engineering constraints and workflow.
 
-Phase 1 was explicitly approved with the personal-use scope above. Review its completion report before authorizing Phase 2. The modular monolith, tenant/account isolation, read-only baseline, bounded cron queue and future retention controls remain the architectural direction. No approval of Phase 1 authorizes production deployment or bypassing later API/policy gates.
+Phase 1 and Phase 2 were explicitly approved with the personal-use scope above. Review the Phase 2 report before authorizing Phase 3. The modular monolith, tenant/account isolation, read-only baseline and bounded cron queue remain the architectural direction. No phase approval authorizes production deployment or bypasses later API/policy gates.

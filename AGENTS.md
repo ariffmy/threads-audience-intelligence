@@ -2,7 +2,7 @@
 
 ## Current authorization boundary
 
-Phase 1 foundation and authentication were explicitly authorized and implemented. The current task is to verify that existing work, fix discovered issues and complete the documentation. Stop after Phase 1; Phase 2 requires new explicit approval. Do not install dependencies, invoke paid/live APIs, connect to production databases or modify/deploy production infrastructure. Approval of one phase does not authorize later phases or circumvent API/policy gates.
+Phase 1 foundation and authentication were explicitly authorized and implemented at `8be29a7`. On 25 October 2026 the user explicitly authorized Phase 2: database queue, bounded CLI workers, synthetic handlers, privacy/retention foundations and operational monitoring. Preserve Phase 1 and stop after Phase 2; Phase 3 requires new explicit approval. Do not install dependencies, invoke paid/live APIs, connect to production databases or modify/deploy production infrastructure. Approval of one phase does not authorize later phases or circumvent API/policy gates.
 
 The approved initial release is personal: one administrator and one organization, with tenant-aware storage retained for future expansion and multiple authorized Threads accounts in later phases. Do not implement public registration, invitations, organization management, subscriptions, billing or unnecessary multi-user interfaces. See `docs/PHASE1_COMPLETION_REPORT.md` and `docs/LOCAL_SETUP.md` for actual implementation and verification status; future modules in the planning documents remain proposals.
 

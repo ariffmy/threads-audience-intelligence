@@ -32,11 +32,12 @@ final class Composition
             new IdentityRepository($pdo), $config, $session, new PasswordHasher($config->get('security.bcrypt_cost')),
             new AuditLog($pdo, $config->get('security.audit_days')), new LoginRateLimiter($pdo, $config),
         );
-        $status = new SystemStatus($pdo, $config, new Migrator($pdo, $config->root . '/database/migrations'));
+        $operations = new OperationsRepository($pdo);
+        $status = new SystemStatus($pdo, $config, new Migrator($pdo, $config->root . '/database/migrations'), $operations);
         return new Application(
             $config, $session, $auth, $csrf,
             new AuthenticationController($auth, $csrf, $view),
-            new AdminController($auth, $csrf, $session, $view, $config, $status, new OperationsRepository($pdo)),
+            new AdminController($auth, $csrf, $session, $view, $config, $status, $operations),
             $view, $logger,
         );
     }

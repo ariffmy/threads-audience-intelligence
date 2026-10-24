@@ -27,7 +27,7 @@
                 </nav>
                 <p class="nav-label future-label">COMING IN LATER PHASES</p>
                 <div class="future-navigation"><span>Threads connections</span><span>Discussion analytics</span><span>Audience reports</span></div>
-                <div class="sidebar-note"><span class="phase-light">PHASE 01</span><p>A secure foundation for understanding your audience.</p></div>
+                <div class="sidebar-note"><span class="phase-light">PHASE 02</span><p>Private access, bounded jobs and operational controls.</p></div>
                 <div class="sidebar-account">
                     <span class="avatar"><?= $e(mb_strtoupper(mb_substr($identity['display_name'], 0, 1))) ?></span>
                     <div><strong><?= $e($identity['display_name']) ?></strong><small>Administrator</small></div>
@@ -41,7 +41,7 @@
                 <?php if (!empty($flash)): ?><div class="alert alert-success" role="status"><?= $e($flash) ?></div><?php endif; ?>
                 <?= $content ?>
             </main>
-            <footer class="app-footer"><span>Threads Audience Intelligence</span><span>Personal use · Phase 1</span></footer>
+            <footer class="app-footer"><span>Threads Audience Intelligence</span><span>Personal use · Phase 2</span></footer>
         </div>
     </div>
 <?php else: ?>

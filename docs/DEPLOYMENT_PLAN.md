@@ -3,6 +3,8 @@
 Status: proposed runbook; no infrastructure inspected or changed.
 Planning date: 24 October 2026.
 
+Phase 2 update (25 October 2026): the queue and synthetic ledger commands now exist. Exact executable templates, limits and additive-schema/code-rollback compatibility are in [CRON_SETUP.md](CRON_SETUP.md). Provider/token commands and broader release operations below remain proposals. No cron, deployment or production DB/infrastructure access was performed; see [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md).
+
 Phase 1 local installation and executable commands are in [LOCAL_SETUP.md](LOCAL_SETUP.md). This document describes future staging/release operations: queue, provider, deletion-ledger and token-rotation commands are not Phase 1 capabilities. No deployment or production database access is authorized or performed. See [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md) for remaining target-host validation.
 
 ## 1. Target and preflight
@@ -82,10 +84,10 @@ Proposed cadence: every minute for one scheduler/queue runner, subject to hostin
 Future command shape (documentation only):
 
 ```text
-/absolute/verified/php /home/<cpanel-user>/apps/threads-audience-intelligence/current/bin/console.php queue:run --max-seconds=25 --memory-soft-limit=96M
+/absolute/verified/php /home/<cpanel-user>/apps/threads-audience-intelligence/current/bin/console.php queue:run --organization=<organization-id> --max-seconds=25 --max-jobs=20 --memory-mb=96
 ```
 
-This command does not exist in Phase 0. Configure its eventual stdout/stderr to a private rotated log with safe output. Do not put secrets in cron command arguments. Cron uses an explicit environment/configuration path and absolute paths throughout. Persist an independent runner-start and successful-exit heartbeat so failure before scheduler startup is visible.
+This command exists in Phase 2 but no cron is installed. Worker start/exit rows and private structured logs show incomplete invocations; startup failure before DB access still needs operator cron/exit monitoring. Use the CRON_SETUP template to avoid an unbounded output file, or separately provision rotation/monitoring with approval. Do not put secrets in cron arguments. Use an explicit private configuration path and absolute paths throughout.
 
 Use a shared private file lock to avoid overlapping invocations on the same host, plus the database lease protocol for correctness across manual/competing invocations. The file lock is released when a process exits; DB leases recover abandoned chunks. No service manager or process supervisor is needed. Respect the host's 30-second ceiling even if CLI defaults happen to be unlimited; enforce wall time in application code and cURL total timeouts, not PHP CPU accounting alone.
 

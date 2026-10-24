@@ -46,6 +46,33 @@ refreshButton?.addEventListener('click', async () => {
             fragment.append(column);
         }
         container.replaceChildren(fragment);
+        if (data.queue) {
+            document.querySelectorAll('[data-queue-count]').forEach(element => {
+                element.textContent = String(data.queue.counts[element.dataset.queueCount]);
+            });
+            const values = {
+                'queue-last-success': data.queue.last_success_at ?? 'No successful run recorded',
+                'queue-processed': data.queue.processed_jobs,
+                'queue-worker-errors': `${data.queue.worker_errors} / ${data.queue.unfinished_runs}`,
+                'queue-duration': data.queue.longest_ms === null ? 'No measurement' : `${data.queue.longest_ms} ms`,
+                'queue-memory': data.queue.peak_bytes === null ? 'No measurement' : `${(data.queue.peak_bytes / 1048576).toFixed(1)} MiB`,
+            };
+            for (const [id, value] of Object.entries(values)) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = String(value);
+            }
+            const errors = data.queue.recent_errors.map(error => {
+                const element = document.createElement('li');
+                element.textContent = `${error.safe_error_code} · ${error.finished_at}`;
+                return element;
+            });
+            if (!errors.length) {
+                const element = document.createElement('li');
+                element.textContent = 'No retained job errors';
+                errors.push(element);
+            }
+            document.getElementById('queue-recent-errors')?.replaceChildren(...errors);
+        }
         feedback.textContent = `Checked ${data.checked_at}`;
     } catch {
         feedback.textContent = 'Status could not be refreshed. Try again or reload the page.';

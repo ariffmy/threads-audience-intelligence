@@ -35,6 +35,7 @@ $marker = bin2hex(random_bytes(16));
 $started = hrtime(true);
 try {
     (require __DIR__ . '/unit.php')($suite, $directory);
+    (require __DIR__ . '/queue-unit.php')($suite);
     // Never load the application's local/production DB configuration for tests.
     foreach (['TAI_ENV', 'TAI_APP_URL', 'TAI_APP_KEY', 'TAI_STORAGE_PATH', 'TAI_DB_HOST', 'TAI_DB_PORT', 'TAI_DB_NAME', 'TAI_DB_USER', 'TAI_DB_PASSWORD', 'TAI_MIGRATION_DB_USER', 'TAI_MIGRATION_DB_PASSWORD'] as $key) {
         putenv($key);
@@ -80,6 +81,7 @@ try {
         echo 'Database test engine: ' . $testPdo->query('SELECT VERSION()')->fetchColumn() . " (production target remains MariaDB 10.11).\n";
         (require __DIR__ . '/integration.php')($suite, $config, $testPdo, $directory);
         (require __DIR__ . '/http.php')($suite, $config, $testPdo, $directory, $configFile, $settings);
+        (require __DIR__ . '/queue-integration.php')($suite, $config, $testPdo, $directory, $configFile, $settings);
     }
 } catch (Throwable $exception) {
     $suite->test('Test environment/bootstrap', static function () use ($exception): void { throw $exception; });

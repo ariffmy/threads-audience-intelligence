@@ -77,7 +77,7 @@ final class Application
                     'settings' => $this->admin->settings($identity),
                     'saveSettings' => $this->admin->saveSettings($request, $identity),
                     'system' => $this->admin->system($identity),
-                    'systemJson' => $this->admin->systemJson(),
+                    'systemJson' => $this->admin->systemJson($identity),
                 };
             }
         } catch (\Throwable $exception) {

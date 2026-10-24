@@ -69,12 +69,12 @@ final class AdminController
 
     public function system(array $identity): Response
     {
-        return $this->page('status', 'System status', $identity, ['statusData' => $this->status->inspect()]);
+        return $this->page('status', 'System status', $identity, ['statusData' => $this->status->inspect((string) $identity['organization_id'])]);
     }
 
-    public function systemJson(): Response
+    public function systemJson(array $identity): Response
     {
-        return Response::json($this->status->inspect());
+        return Response::json($this->status->inspect((string) $identity['organization_id']));
     }
 
     private function page(string $template, string $title, array $identity, array $data = []): Response

@@ -10,11 +10,11 @@ use Tai\Shared\Infrastructure\Migrator;
 
 final class SystemStatus
 {
-    public function __construct(private readonly PDO $pdo, private readonly Config $config, private readonly Migrator $migrator)
+    public function __construct(private readonly PDO $pdo, private readonly Config $config, private readonly Migrator $migrator, private readonly OperationsRepository $operations)
     {
     }
 
-    public function inspect(): array
+    public function inspect(string $organizationId): array
     {
         $version = (string) $this->pdo->query('SELECT VERSION()')->fetchColumn();
         $migrationRows = $this->migrator->status();
@@ -22,23 +22,29 @@ final class SystemStatus
         foreach ($migrationRows as $row) {
             $ready = $ready && $row['status'] === 'applied';
         }
+        $queue = $ready ? $this->operations->queueStatistics($organizationId) : null;
         $extensions = [];
         foreach (['PDO', 'pdo_mysql', 'mbstring', 'session', 'openssl'] as $extension) {
             $extensions[$extension] = extension_loaded($extension);
         }
         $checks = [
             ['name' => 'Database', 'ok' => true, 'detail' => 'Connected · ' . $version],
-            ['name' => 'Schema', 'ok' => $ready, 'detail' => $ready ? 'All Phase 1 migrations applied' : 'Migration review required'],
+            ['name' => 'Schema', 'ok' => $ready, 'detail' => $ready ? 'All Phase 2 migrations applied' : 'Migration review required'],
             ['name' => 'Private storage', 'ok' => is_writable($this->config->storage('logs')) && is_writable($this->config->storage('sessions')), 'detail' => 'Logs and sessions outside public/'],
             ['name' => 'Transport', 'ok' => $this->config->secureCookies(), 'detail' => $this->config->secureCookies() ? 'HTTPS and Secure cookies configured' : 'Local loopback HTTP · development only'],
         ];
+        $checks[] = ['name' => 'Worker heartbeat', 'ok' => $queue !== null && $queue['heartbeat'] === 'recent',
+            'detail' => $queue === null ? 'Apply migrations first' : match ($queue['heartbeat']) {
+                'recent' => 'Successful run within three minutes', 'stale' => 'No successful run within three minutes', default => 'No successful run recorded',
+            }];
         return [
-            'phase' => 1, 'environment' => $this->config->get('app.env'), 'release' => $this->config->get('app.release'),
+            'phase' => 2, 'environment' => $this->config->get('app.env'), 'release' => $this->config->get('app.release'),
             'php_version' => PHP_VERSION, 'database_version' => $version,
             'target_database' => 'MariaDB 10.11', 'checked_at' => gmdate('c'),
             'checks' => $checks, 'extensions' => $extensions,
             'migrations' => array_map(static fn (array $row): array => ['version' => $row['version'], 'status' => $row['status']], $migrationRows),
-            'integrations' => ['threads' => 'Not implemented', 'openai' => 'Not implemented', 'queue' => 'Not implemented'],
+            'integrations' => ['threads' => 'Not implemented', 'openai' => 'Not implemented', 'queue' => 'Synthetic and retention jobs'],
+            'queue' => $queue,
         ];
     }
 }

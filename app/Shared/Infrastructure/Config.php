@@ -145,5 +145,18 @@ final class Config
             || $this->get('security.bcrypt_cost') > 14) {
             throw new UserFacingException('Bcrypt cost must be between 12 and 14.');
         }
+        foreach (['max_seconds' => [1, 25], 'max_jobs' => [1, 100], 'memory_mb' => [16, 96], 'lease_seconds' => [30, 300], 'retry_base_seconds' => [1, 86400], 'retry_cap_seconds' => [1, 86400]] as $key => [$min, $max]) {
+            if (!is_int($this->get('queue.' . $key)) || $this->get('queue.' . $key) < $min || $this->get('queue.' . $key) > $max) {
+                throw new UserFacingException('Invalid queue limits.');
+            }
+        }
+        if ($this->get('queue.retry_base_seconds') > $this->get('queue.retry_cap_seconds')) {
+            throw new UserFacingException('Invalid retry limits.');
+        }
+        foreach (['source_days' => 90, 'export_days' => 7, 'log_days' => 30, 'audit_days' => 90, 'backup_days' => 30] as $key => $max) {
+            if (!is_int($this->get('privacy.' . $key)) || $this->get('privacy.' . $key) < 1 || $this->get('privacy.' . $key) > $max) {
+                throw new UserFacingException('Invalid provisional retention limits.');
+            }
+        }
     }
 }

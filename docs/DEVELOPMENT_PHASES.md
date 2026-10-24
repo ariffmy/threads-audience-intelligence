@@ -1,6 +1,6 @@
 # Development phases and testing strategy
 
-Status: Phase 1 implemented and locally verified, awaiting completion review; Phase 2 and later phases are not authorized.
+Status: Phase 1 preserved; Phase 2 explicitly authorized on 25 October 2026 and locally implemented/verified. Phase 3 and later are not authorized.
 Planning date: 24 October 2026.
 
 ## 1. Delivery rules
@@ -34,9 +34,9 @@ Acceptance: clean migration and rerun succeed; changed migration checksum is rej
 
 ## 4. Phase 2: bounded queue, privacy foundation and operational controls
 
-Prerequisite: user acceptance of Phase 1 and explicit approval to start Phase 2. No Phase 2 work has begun.
+Prerequisite: satisfied by the explicit Phase 2 request of 25 October 2026, naming baseline `8be29a7`. Actual implementation/evidence is in [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md). Phase 3 is not authorized.
 
-Deliverables: jobs/attempts/scheduler tables, finite runner, atomic claim/lease fencing, retry/dead-letter/blocked handling, idempotent dispatch, checkpoints, cancellation, status UI, provider budget controls, retention and deletion state machine. Use synthetic job handlers and a fake provider only. Add private file lifecycle and deletion ledger interfaces before sensitive data collection.
+Deliverables: jobs/attempts/scheduler tables, finite runner, atomic claim/lease fencing, retry/dead-letter handling, idempotent dispatch, checkpoints, scope blocking/cancellation, status UI and synthetic retention/deletion foundations. Synthetic handlers and a simulated external effect only; private-file lifecycle and independent signed-ledger adapters precede sensitive collection. Provider budget/request controls and provider-specific blocked/error states are deferred to Phase 3/4 to match the explicit no-API-handler Phase 2 request. Account/source suppression must be added with those stores before real data.
 
 Acceptance:
 

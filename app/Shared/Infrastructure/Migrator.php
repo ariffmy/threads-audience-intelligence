@@ -63,7 +63,7 @@ final class Migrator
                     continue;
                 }
                 $start = hrtime(true);
-                $insert = $this->pdo->prepare("INSERT INTO schema_migrations (version,checksum,status,started_at,application_release) VALUES (?,?,'started',UTC_TIMESTAMP(6),'phase-1')");
+                $insert = $this->pdo->prepare("INSERT INTO schema_migrations (version,checksum,status,started_at,application_release) VALUES (?,?,'started',UTC_TIMESTAMP(6),'phase-2')");
                 $insert->execute([$row['version'], $row['checksum']]);
                 try {
                     // Each file is exactly one reviewed DDL statement. No multi-statement parser.

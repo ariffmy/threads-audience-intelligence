@@ -1,5 +1,7 @@
 # Phase 1 completion report
 
+Historical checkpoint: this report describes `8be29a7`. The user subsequently authorized Phase 2 on 25 October 2026. Current evidence is in [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md); statements below about future authorization/capabilities describe the earlier checkpoint. Phase 1 SQL/authentication is preserved.
+
 Finalized: 25 October 2026 (Asia/Kuala_Lumpur).
 Status: implementation and local verification complete; ready for user review. Phase 2 is not authorized or started. Production deployment is not authorized or performed.
 

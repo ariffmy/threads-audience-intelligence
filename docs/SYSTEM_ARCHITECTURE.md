@@ -1,7 +1,9 @@
 # System architecture
 
-Status: Phase 1 foundation implemented; queue, providers, collection, analysis and reporting below remain future design.
+Status: Phase 1 foundation and Phase 2 synthetic queue/privacy operations implemented. Providers, collection, analysis and reporting remain future design.
 Planning date: 24 October 2026.
+
+Phase 2 implementation decisions (25 October 2026): the explicit composition root now includes Queue and Privacy. Claim/publication lock organization, synthetic scope and job in order; ordinary leases last 90 seconds and the cooperative runner defaults to 25 seconds/96 MiB. Each invocation names its organization; an hourly coalescing schedule dispatches retention at priority 100. Implemented states are ready/running/retry_wait/succeeded/failed/cancelled. A synthetic-workload tombstone preserves administrator access, increments the existing organization privacy epoch/data version and mirrors the scope epoch. Private synthetic artifacts are inventoried before writing; deletion intents are signed and stored independently. Account/source checks, provider blocked/budget/request handling and fair automatic multi-tenant coordination await those modules. The broader diagram/contracts below remain proposals where they exceed these capabilities. Exact behavior: [QUEUE_ARCHITECTURE.md](QUEUE_ARCHITECTURE.md), [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md), [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md).
 
 ## 1. Architectural decision
 

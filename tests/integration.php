@@ -26,7 +26,12 @@ use function TaiTests\raises;
 return static function (Suite $suite, Config $config, PDO $pdo, string $directory): void {
     check($config->get('app.env') === 'test' && str_starts_with((string) $pdo->query('SELECT DATABASE()')->fetchColumn(), 'tai_test_'));
     check(strlen((string) $pdo->query('SELECT marker FROM _tai_test_marker')->fetchColumn()) === 32);
-    $migrator = new Migrator($pdo, $config->root . '/database/migrations');
+    $phaseOneDirectory = $directory . '/phase-one-migrations';
+    mkdir($phaseOneDirectory);
+    foreach (glob($config->root . '/database/migrations/000[1-6]_*.sql') as $file) {
+        copy($file, $phaseOneDirectory . '/' . basename($file));
+    }
+    $migrator = new Migrator($pdo, $phaseOneDirectory);
     $suite->test('Database connectivity, native prepares and UTC connection', static function () use ($pdo): void {
         check(str_contains((string) $pdo->query('SELECT VERSION()')->fetchColumn(), 'MariaDB'));
         check($pdo->getAttribute(PDO::ATTR_EMULATE_PREPARES) === false || $pdo->getAttribute(PDO::ATTR_EMULATE_PREPARES) === 0);
@@ -47,6 +52,12 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
         $expected = ['_tai_test_marker', 'audit_events', 'auth_sessions', 'login_throttles', 'memberships', 'organizations', 'schema_migrations', 'users'];
         sort($expected);
         check($tables === $expected);
+    });
+    $migrator = new Migrator($pdo, $config->root . '/database/migrations');
+    $suite->test('Phase 1 to Phase 2 upgrade preserves identity tables and reruns cleanly', static function () use ($migrator): void {
+        check($migrator->migrate() === 9);
+        check($migrator->migrate() === 0);
+        check(count(array_filter($migrator->status(), fn ($row) => $row['status'] === 'applied')) === 15);
     });
     $suite->test('Migration checksums reject modified historical SQL', static function () use ($pdo, $directory, $config): void {
         $changed = $directory . '/changed-migrations';
@@ -221,7 +232,7 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
     $suite->test('Bounded maintenance removes expired auth/audit data', static function () use ($pdo, $config): void {
         $pdo->exec("UPDATE login_throttles SET expires_at=DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 1 DAY)");
         $pdo->exec("UPDATE audit_events SET expires_at=DATE_SUB(UTC_TIMESTAMP(6), INTERVAL 1 DAY) WHERE event_type='profile.updated'");
-        $counts = (new Maintenance($pdo, $config))->prune();
+        $counts = (new Maintenance($pdo, $config))->prune('1');
         check($counts['login_throttles'] > 0 && $counts['audit_events'] > 0);
         check((int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 1);
     });
