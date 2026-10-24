@@ -1,0 +1,2 @@
+# Defense in depth when a hosting document root is accidentally pointed here.
+Require all denied

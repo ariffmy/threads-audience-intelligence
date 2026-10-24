@@ -1,0 +1,1 @@
+<main class="error-shell"><div class="error-card"><a class="error-brand" href="/">THREADS AUDIENCE INTELLIGENCE</a><span class="error-code"><?= $e($statusCode) ?></span><h1>We couldn’t complete that request.</h1><p><?= $e($message) ?></p><a class="btn btn-primary" href="/">Return to workspace</a><p class="error-reference">Request reference: <?= $e($reference) ?></p></div></main>

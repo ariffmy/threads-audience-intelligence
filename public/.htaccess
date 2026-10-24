@@ -1,0 +1,13 @@
+Require all granted
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^assets/ - [L]
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [L]
+
+<FilesMatch "(^\.|\.(?:sql|log|ini|env|zip|bak)$)">
+    Require all denied
+</FilesMatch>
