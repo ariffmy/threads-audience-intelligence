@@ -1,6 +1,8 @@
 # Database design
 
 Status: logical target design for MariaDB 10.11; Phase 1 identity/audit and Phase 2 synthetic queue/privacy subsets implemented. Local execution used MariaDB 12.3.3; 10.11 execution remains unverified.
+
+Phase 3A design update (25 October 2026): no schema or migration changed. Future account/credential/capability, request reservation, source version and real-data suppression contracts are refined in [PHASE3A_INTEGRATION_DESIGN.md](PHASE3A_INTEGRATION_DESIGN.md). Author observations must not assume a stable provider author ID or become individual interest profiles. Current logical discovery/analysis tables remain gated proposals under [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md); Phase 3B is unapproved.
 Planning date: 24 October 2026.
 
 ## Implemented Phase 2 boundary (25 October 2026)

@@ -1,6 +1,6 @@
 # Development phases and testing strategy
 
-Status: Phase 1 preserved; Phase 2 explicitly authorized on 25 October 2026 and locally implemented/verified. Phase 3 and later are not authorized.
+Status: Phase 1 preserved; Phase 2 locally implemented/verified at `dfba94e`. Phase 3A research/planning explicitly authorized and completed on 25 October 2026. Phase 3B and later are not authorized.
 Planning date: 24 October 2026.
 
 ## 1. Delivery rules
@@ -34,7 +34,7 @@ Acceptance: clean migration and rerun succeed; changed migration checksum is rej
 
 ## 4. Phase 2: bounded queue, privacy foundation and operational controls
 
-Prerequisite: satisfied by the explicit Phase 2 request of 25 October 2026, naming baseline `8be29a7`. Actual implementation/evidence is in [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md). Phase 3 is not authorized.
+Prerequisite: satisfied by the explicit Phase 2 request of 25 October 2026, naming baseline `8be29a7`. Actual implementation/evidence is in [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md). Phase 3A subsequently authorized documentation research only; no integration implementation is authorized.
 
 Deliverables: jobs/attempts/scheduler tables, finite runner, atomic claim/lease fencing, retry/dead-letter handling, idempotent dispatch, checkpoints, scope blocking/cancellation, status UI and synthetic retention/deletion foundations. Synthetic handlers and a simulated external effect only; private-file lifecycle and independent signed-ledger adapters precede sensitive collection. Provider budget/request controls and provider-specific blocked/error states are deferred to Phase 3/4 to match the explicit no-API-handler Phase 2 request. Account/source suppression must be added with those stores before real data.
 
@@ -50,7 +50,13 @@ Acceptance:
 
 ## 5. Phase 3: official Threads connection and collection
 
-Prerequisites: Phase 2 acceptance; G1/G3 verified before real collection, G2 for the relevant tester/live-user scope, and G5 before scheduled synchronization. An adapter with sanitized fixtures may be developed while live gates are pending.
+### Phase 3A: feasibility and design (documentation complete)
+
+Authorized scope: current official Meta documentation, dated capability matrix, product feasibility/fallback, future integration design and decision report. Deliverables and limitations: [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md). No source, migrations, live calls, dependencies or deployment. All G1–G6 remain open. Discovery's competitor-analysis purpose and reply-analytics de-identification restrictions qualify all later feature proposals, including Phase 6.
+
+### Phase 3B: proposed fixture-first connection and collection
+
+Prerequisites: new explicit implementation approval, Phase 2 acceptance and an agreed eligible product purpose. The recommended increment is fake-transport/synthetic owned-discussion integration, not public profile/history enrichment or identifying analytics. G1/G2/G3/G5 and actual callback/deletion evidence must be satisfied for the relevant real-data pilot, with applicable live-call authorization. No live request is authorized by this plan. External AI remains a later separate scope.
 
 Deliverables: account/grant/credential/capability tables, state-protected OAuth, authenticated token encryption, refresh/reconnect/disconnect, explicit root ownership validation, owned-post imports, available reply/conversation imports, author observations and provenance, source reconciliation, safe pagination and import progress UI. Do not implement posting or reply moderation.
 
@@ -92,7 +98,7 @@ For a 100-post/10,000-reply fixture, representative indexed dashboards target un
 
 ## 8. Phase 6: optional public-profile and public-post samples
 
-Prerequisites: baseline working without this phase, G4 verified, G3 confirmed for this purpose and any onward transfer, and explicit feature enablement by an authorized owner.
+Prerequisites: baseline working without this phase, G4 verified, G3 confirmed for this purpose and any onward transfer, and explicit feature enablement by an authorized owner. Phase 3A establishes that current discovery allowed use is business competitor analysis. Generic replier-interest enrichment does not satisfy that requirement by obtaining a scope; this original phase proposal must be revised or remain unavailable unless a genuinely applicable permitted purpose is established.
 
 Deliverables: separate verified discovery capability, exact-username lookup only when supported, permitted current profile snapshot, bounded authorized public-post sample, self-described profile-content summaries and sample topic aggregation. Persist provenance, eligibility/missingness, quota usage and sample windows. No external enrichment or scraping fallback.
 
@@ -131,4 +137,4 @@ The change satisfies its acceptance criteria, handles failures and authorization
 
 ## 12. Proposed approval scope
 
-Approve the architecture and phases, confirm or amend retention/organization defaults, and explicitly authorize starting Phase 1. This document requests no credentials, dependency installation, paid API request or production mutation. Later release gates remain enforceable even after the plan is approved.
+Phase 1 and Phase 2 implementation and Phase 3A research received separate authorization. The next proposed scope is the fixture-first Phase 3B described in [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md), pending explicit approval and a product-purpose decision. No implementation, credentials, dependency installation, paid/live request or production mutation is authorized by this plan. Later release gates remain enforceable after any phase approval.

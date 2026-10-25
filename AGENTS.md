@@ -2,7 +2,7 @@
 
 ## Current authorization boundary
 
-Phase 1 foundation and authentication were explicitly authorized and implemented at `8be29a7`. On 25 October 2026 the user explicitly authorized Phase 2: database queue, bounded CLI workers, synthetic handlers, privacy/retention foundations and operational monitoring. Preserve Phase 1 and stop after Phase 2; Phase 3 requires new explicit approval. Do not install dependencies, invoke paid/live APIs, connect to production databases or modify/deploy production infrastructure. Approval of one phase does not authorize later phases or circumvent API/policy gates.
+Phase 1 foundation and authentication were explicitly authorized and implemented at `8be29a7`; Phase 2 synthetic queue/privacy/operations are preserved at `dfba94e`. On 25 October 2026 the user explicitly authorized Phase 3A official Threads API research and integration planning only. That documentation package is complete in `docs/PHASE3A_DECISION_REPORT.md`; no application code or migrations were authorized. Stop after Phase 3A. Phase 3B requires new explicit approval. Do not install dependencies, invoke paid/live APIs, connect to production databases or modify/deploy production infrastructure. Approval of one phase does not authorize later phases or circumvent API/policy gates.
 
 The approved initial release is personal: one administrator and one organization, with tenant-aware storage retained for future expansion and multiple authorized Threads accounts in later phases. Do not implement public registration, invitations, organization management, subscriptions, billing or unnecessary multi-user interfaces. See `docs/PHASE1_COMPLETION_REPORT.md` and `docs/LOCAL_SETUP.md` for actual implementation and verification status; future modules in the planning documents remain proposals.
 
@@ -22,6 +22,7 @@ Read `docs/PROJECT_OVERVIEW.md`, `docs/SYSTEM_ARCHITECTURE.md`, `docs/DATABASE_D
 
 - Baseline collection covers posts of accounts the user has authorized and is allowed to manage, and replies accessible under the actual Threads grant. A local role or supplied post ID does not establish provider authorization.
 - Verify official capabilities, permission mappings, access level, API version, quotas and policies before live use. Update the dated evidence register and close applicable G1-G6 gates in `docs/API_FEASIBILITY.md`.
+- Apply the dated Phase 3A research and capability matrix to future proposals. Current Threads permission purposes are business-app restricted; public discovery is for competitor analysis. Do not treat owner consent or access approval as permission to profile reply authors. All live gates remain open; the owned-discussion aggregate fallback is a recommendation awaiting acceptance.
 - Public-profile discovery and public-post samples are optional and disabled until verified. Do not assume arbitrary account histories, private content, complete reply visibility, follower graphs or stable replier IDs.
 - Do not scrape, harvest browser credentials, call private APIs or bypass restrictions when official access is unavailable.
 - Analyze only accessible evidence. Do not infer sensitive attributes, demographics, private identities, health, beliefs or unsupported backgrounds. Communication style describes supplied text, not enduring personal traits.

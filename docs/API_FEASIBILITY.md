@@ -1,7 +1,28 @@
 # API feasibility and evidence register
 
-Status: researched planning baseline with explicit unresolved gates; no live account testing.
-Research date: 24 October 2026 (Asia/Kuala_Lumpur).
+Status: Phase 3A official-documentation research complete; all live gates remain open. No live account testing.
+Research dates: original baseline 24 October 2026; superseding Threads research 25 October 2026 (Asia/Kuala_Lumpur).
+
+## Current Phase 3A evidence — 25 October 2026
+
+Use [PHASE3A_API_RESEARCH.md](PHASE3A_API_RESEARCH.md) and its T01–T18 dated official source register, [PHASE3A_CAPABILITY_MATRIX.md](PHASE3A_CAPABILITY_MATRIX.md), [PHASE3A_INTEGRATION_DESIGN.md](PHASE3A_INTEGRATION_DESIGN.md), [PHASE3A_PRODUCT_FEASIBILITY.md](PHASE3A_PRODUCT_FEASIBILITY.md) and [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md) for the current Threads findings. Public browser-rendered official pages were now readable. The older research below is retained as a dated baseline: its statements that exact discovery contracts, quotas or current terms could not be read are historical evidence gaps, not the current research status. Where they differ, the Phase 3A findings govern future design. The OpenAI section was not refreshed in this phase.
+
+Material findings: owned-profile/posts and available replies/conversations are documented with `threads_basic` and `threads_read_replies`. A stable reply-author user ID was not established. Exact-username public discovery/post lists exist for public profiles with at least 100 followers, restricted Standard Access and published limits; **current discovery allowed use is business competitor analysis**, not a general replier-enrichment grant. Relevant Threads permissions are business-app restricted; permitted reply analytics require suitable aggregation/de-identification. A single-admin installation is not proof of business-app eligibility. Terms also constrain user profiling, retention and processors. The recommended aggregate owned-discussion fallback awaits acceptance and purpose/access evidence; public histories/identifying profiles/external AI remain disabled.
+
+### Current gate disposition
+
+| Gate | Documentation progress | Still required / current state |
+| --- | --- | --- |
+| G1 baseline contract | OAuth, token lifecycle, own-post/reply contracts and fields read. | Actual app/grants, authorized contract tests, callback mapping and visibility/paging proof. **OPEN.** |
+| G2 app access | Tester versus non-role access, purpose and review rules read. | Actual app category, roles, access tier, required review/publication/business verification. **OPEN.** |
+| G3 purpose/privacy | Current permissions, terms and deletion guidance read. | Purpose eligibility, any profiling consent, notices/processors, real-data purge/restore and retention evidence. **OPEN; no real collection/transfer.** |
+| G4 discovery | Routes, fields, threshold and limits documented. | Applicable permitted purpose, approval, eligibility and contract tests; no generic replier-history entitlement. **OPEN/DISABLED.** |
+| G5 quotas | General accounting formula and discovery caps read. | Actual read headers/errors/buckets, local reservation behavior and measured bounded capacity. **OPEN.** |
+| G6 OpenAI | No new evaluation or transfer approval. | Permitted processing, provider terms, model/quality/cost/latency evidence. **OPEN/DISABLED.** |
+
+No gate was closed by documentation alone. Phase 3A is complete; Phase 3B and any real-data test require their own explicit scope. The gate definitions and evidence requirements in section 9 remain in force, strengthened by this current disposition.
+
+## Historical research baseline — 24 October 2026
 
 ## 1. Research method and confidence
 

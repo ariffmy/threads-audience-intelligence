@@ -5,6 +5,7 @@ Personal application built with native PHP 8.5 and PDO. Phase 1 provides secure 
 - [Local setup and testing](docs/LOCAL_SETUP.md)
 - [Phase 1 completion report](docs/PHASE1_COMPLETION_REPORT.md)
 - [Phase 2 completion report](docs/PHASE2_COMPLETION_REPORT.md)
+- [Phase 3A research and decision report](docs/PHASE3A_DECISION_REPORT.md)
 - [Queue architecture](docs/QUEUE_ARCHITECTURE.md)
 - [CLI and proposed cron setup](docs/CRON_SETUP.md)
 - [Privacy and retention](docs/PRIVACY_RETENTION.md)
@@ -15,4 +16,4 @@ Personal application built with native PHP 8.5 and PDO. Phase 1 provides secure 
 - [Development phases](docs/DEVELOPMENT_PHASES.md)
 - [Future cPanel deployment plan](docs/DEPLOYMENT_PLAN.md)
 
-Serve only `public/`. Keep configuration and storage private. No default administrator credentials are supplied. No package installation or build step is required. Stop after Phase 2; Phase 3 and production deployment require new explicit approval. Tests use synthetic data and local marked databases.
+Serve only `public/`. Keep configuration and storage private. No default administrator credentials are supplied. No package installation or build step is required. Phase 3A documentation research is complete; stop here. Phase 3B and production deployment require new explicit approval. Tests use synthetic data and local marked databases.
