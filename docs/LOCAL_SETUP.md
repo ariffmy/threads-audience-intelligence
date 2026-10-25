@@ -1,13 +1,15 @@
 # Local setup and verification
 
-Phase 2 update (25 October 2026): preserve existing configuration/administrator and apply the nine additive migrations. Queue commands and proposed cron setup are in [CRON_SETUP.md](CRON_SETUP.md); privacy scope and optional independent ledger settings are in [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md). Stop after Phase 2; no Phase 3/provider or production work is authorized.
+Phase 3B update (25 October 2026): preserve existing configuration/administrator and apply ten additive migrations after the fifteen-migration Phase 2 baseline. Queue commands are in [CRON_SETUP.md](CRON_SETUP.md). Stop after Phase 3B local fixture review; live APIs, external AI, production access, deployment, push and merge remain unauthorized.
+
+The fixture module is disabled by default. To test it locally, privately provision `threads.keyring_path`, the independent privacy ledger/signing key, and explicitly set `threads.fixture_enabled=true` in local/test configuration. The keyring format, code/transport lockout and flow are in [THREADS_OAUTH_IMPLEMENTATION.md](THREADS_OAUTH_IMPLEMENTATION.md). Verify sodium in both the parent PHP process and child workers. This Windows installation has an existing sodium DLL that was enabled through a private per-process `PHP_INI_SCAN_DIR`; no extension was installed and no global INI was edited. A CLI `-d extension=sodium` alone does not propagate to subprocesses. Never use real provider credentials for these tests.
 
 This guide runs the existing personal application on a development computer. It does not authorize production access or deployment. Use a dedicated local database and private configuration. There is one administrator and one organization; no public registration, invitations or organization-management UI.
 
 ## 1. Prerequisites
 
 - PHP 8.5 CLI and an existing local MariaDB installation. The production targets are PHP 8.5.12 and MariaDB 10.11. The recorded Windows run used PHP 8.5.8 and MariaDB 12.3.3; it does not establish compatibility with those exact production versions.
-- PHP extensions used by Phase 1: PDO, pdo_mysql, session, mbstring and openssl, plus standard JSON/hash/filter capabilities. Tests use cURL, `proc_open` and local sockets. PHP must support secure random bytes and password hashing.
+- PHP extensions used by Phase 1: PDO, pdo_mysql, session, mbstring and openssl, plus standard JSON/hash/filter capabilities. Phase 3B credentials/tests also require sodium XChaCha20-Poly1305. Tests use cURL, `proc_open` and local sockets. PHP must support secure random bytes and password hashing.
 - A local database operator identity for creating the development database/users. Use separate application credentials with limited privileges; do not run the web application as root.
 - No Composer, Node, Python, Docker, Redis or package installation is needed. Bootstrap 5.3.8 CSS is already vendored with its license. Chart.js is deferred until charts are required.
 
@@ -24,7 +26,7 @@ Use the same PHP 8.5 binary for commands and the local web server. Do not change
 
 ## 2. Create a local database and identities
 
-In the existing local database administration tool, create `threads_audience_local` using InnoDB and `utf8mb4_unicode_ci`. Provision a runtime identity with SELECT, INSERT, UPDATE and DELETE on that database only. Provision a separate local migration identity with the DDL privileges needed to create the fifteen tables, foreign keys and indexes, plus the DML needed for migration history and initial administrator creation. Keep both passwords private.
+In the existing local database administration tool, create `threads_audience_local` using InnoDB and `utf8mb4_unicode_ci`. Provision a runtime identity with SELECT, INSERT, UPDATE and DELETE on that database only. Provision a separate local migration identity with the DDL privileges needed to apply all twenty-five migrations, foreign keys and indexes, plus the DML needed for migration history and initial administrator creation. Keep both passwords private.
 
 Example SQL template for a local operator to adapt; replace both password placeholders before executing in a private administration session. These statements have not been applied by this guide:
 
@@ -78,7 +80,7 @@ php bin/console.php migrate
 php bin/console.php migrate:status
 ```
 
-Each command should exit zero. Migration status should list exactly fifteen applied migrations. Upgrade applies nine, a fresh install fifteen, and a repeat zero. The runner creates its own `schema_migrations` table, holds a database advisory lock and checks SHA-256 checksums. Migrations are immutable after application. HTTP requests never migrate the database.
+Each command should exit zero. Migration status should list exactly twenty-five applied migrations. Upgrade from Phase 2 applies ten, a fresh install twenty-five, and a repeat zero. The runner creates its own `schema_migrations` table, holds a database advisory lock and checks SHA-256 checksums. Migrations are immutable after application. HTTP requests never migrate the database. Partial-DDL and older-code rollback constraints are in [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md).
 
 MariaDB DDL can commit independently of the migration journal. A started/failed row, missing historical file or checksum mismatch stops migration. Do not edit SQL to force success or blindly rerun DDL. Inspect the local journal and actual table state, preserve a backup, and reconcile through a reviewed operator procedure or restore a known clean local backup. No automatic down/repair operation is provided.
 
@@ -167,4 +169,4 @@ Run `php bin/console.php maintenance:prune --organization=<organization-id>` man
 - HTTP 503: check private configuration/storage, completed migrations and local database availability. The fallback intentionally avoids database secrets and stack traces.
 - Missing styling: ensure `-t public`, the dev router, and vendored asset paths are intact. Do not replace self-hosted assets with an unreviewed CDN dependency.
 
-Linux/cPanel file ownership, actual HTTPS behavior, web/CLI PHP parity, MariaDB 10.11 execution, resource limits and backup/restore still need authorized staging checks. See [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md). Stop after Phase 2 review; do not begin Phase 3, connect external APIs or deploy without new explicit approval.
+Linux/cPanel file ownership, actual HTTPS behavior, web/CLI PHP parity, MariaDB 10.11 execution, resource limits and backup/restore still need separately authorized staging checks. See [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md). Stop after Phase 3B review; do not begin later phases, connect external APIs, push, merge or deploy without new explicit approval.

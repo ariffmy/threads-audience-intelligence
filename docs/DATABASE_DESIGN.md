@@ -1,7 +1,19 @@
 # Database design
 
-Status: logical target design for MariaDB 10.11; Phase 1 identity/audit and Phase 2 synthetic queue/privacy subsets implemented. Local execution used MariaDB 12.3.3; 10.11 execution remains unverified.
+Status: logical target design for MariaDB 10.11; Phase 1/2 and Phase 3B fixture account/collection/privacy subsets implemented. Local execution used MariaDB 12.3.3; 10.11 execution remains unverified.
+
+Phase 3A research/design is preserved at `3368ebd`. The subsequent explicitly approved Phase 3B fixture increment is below. Author observations must not assume a stable provider author ID or become individual interest profiles. Logical discovery/analysis tables remain gated proposals under [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md).
 Planning date: 24 October 2026.
+
+## Implemented Phase 3B schema
+
+Ten additive migrations `0016`–`0025` preserve all original fifteen SQL files. `threads_accounts` enforces one fixture account/organization, immutable internal scope namespace, string provider identity, connection state, account privacy/credential/grant versions, separate token/permission/profile-display expiry and request reservation/window metadata. Composite organization/account keys parent credentials, OAuth states, granted permission evidence, content, runs/checkpoints, jobs and request records. OAuth states also reference membership and the active session; session deletion cascades only the bounded one-account state, not corpus data.
+
+`threads_credentials` stores versioned AEAD envelopes with generation/kind/issuance/expiry/verification. `threads_account_grants` stores exactly the allowlisted fixture permissions and separate expiry. `content_items` unifies owned roots/replies by scoped remote media ID, with composite root FK, nullable time/text/handle/tree references, content version/hash, provenance, suppression HMAC and finite expiry. `author_user_id` is constrained to NULL; no author identity/profile table is created.
+
+`threads_sync_runs` snapshots the explicit UTC window, mode/root version and account fences; `threads_sync_checkpoints` stores encrypted cursors, bounded seen-cursor hashes and version. Migration `0023` adds nullable account FKs/fence columns and an all-or-none check to the existing jobs. `threads_request_reservations` holds bounded content-free attempts/unknown outcomes without tying source lifetime to job history. `threads_deletions` intentionally has no parent FK: minimal signed-intent/suppression proof must survive absent-account/tenant restores. The application validates its target namespace and request schema; primary content remains tenant/account constrained.
+
+Expiry, scoped lookup, root, run, dispatch and request indexes support bounded operations. No massive cascade or HTTP migration exists. Source re-fetch cannot extend first retention expiry. The actual SQL and [THREADS_DATA_COLLECTION.md](THREADS_DATA_COLLECTION.md) govern this subset; logical `observed_authors`, separate profile snapshots, general capabilities/budgets and future analysis/report stores below are not implemented. Migration/rollback limits are in [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md).
 
 ## Implemented Phase 2 boundary (25 October 2026)
 

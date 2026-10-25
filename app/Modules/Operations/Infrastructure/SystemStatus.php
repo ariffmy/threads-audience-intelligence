@@ -29,7 +29,7 @@ final class SystemStatus
         }
         $checks = [
             ['name' => 'Database', 'ok' => true, 'detail' => 'Connected · ' . $version],
-            ['name' => 'Schema', 'ok' => $ready, 'detail' => $ready ? 'All Phase 2 migrations applied' : 'Migration review required'],
+            ['name' => 'Schema', 'ok' => $ready, 'detail' => $ready ? 'All Phase 3B migrations applied' : 'Migration review required'],
             ['name' => 'Private storage', 'ok' => is_writable($this->config->storage('logs')) && is_writable($this->config->storage('sessions')), 'detail' => 'Logs and sessions outside public/'],
             ['name' => 'Transport', 'ok' => $this->config->secureCookies(), 'detail' => $this->config->secureCookies() ? 'HTTPS and Secure cookies configured' : 'Local loopback HTTP · development only'],
         ];
@@ -38,12 +38,12 @@ final class SystemStatus
                 'recent' => 'Successful run within three minutes', 'stale' => 'No successful run within three minutes', default => 'No successful run recorded',
             }];
         return [
-            'phase' => 2, 'environment' => $this->config->get('app.env'), 'release' => $this->config->get('app.release'),
+            'phase' => '3B', 'environment' => $this->config->get('app.env'), 'release' => $this->config->get('app.release'),
             'php_version' => PHP_VERSION, 'database_version' => $version,
             'target_database' => 'MariaDB 10.11', 'checked_at' => gmdate('c'),
             'checks' => $checks, 'extensions' => $extensions,
             'migrations' => array_map(static fn (array $row): array => ['version' => $row['version'], 'status' => $row['status']], $migrationRows),
-            'integrations' => ['threads' => 'Not implemented', 'openai' => 'Not implemented', 'queue' => 'Synthetic and retention jobs'],
+            'integrations' => ['threads' => 'Fixture only; live unavailable', 'openai' => 'Not implemented', 'queue' => 'Synthetic, fixture and retention jobs'],
             'queue' => $queue,
         ];
     }

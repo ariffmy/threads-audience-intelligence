@@ -17,6 +17,10 @@ final class JobPayload
                 && is_string($payload['run']) && preg_match('/^[a-f0-9]{32}$/D', $payload['run']) === 1,
             'demo.failure' => $keys === ['mode'] && in_array($payload['mode'], ['transient', 'permanent'], true),
             'retention.sweep' => $payload === [],
+            'threads.token' => $keys === ['account', 'step'] && self::validId($payload['account']) && in_array($payload['step'], ['long', 'refresh'], true),
+            'threads.validate' => $keys === ['account', 'step'] && self::validId($payload['account']) && in_array($payload['step'], ['debug', 'profile'], true),
+            'threads.posts', 'threads.replies', 'threads.conversation' => $keys === ['account', 'run', 'version']
+                && self::validId($payload['account']) && self::validId($payload['run']) && is_int($payload['version']) && $payload['version'] >= 1 && $payload['version'] <= 11,
             default => false,
         };
         if (!$valid) {
@@ -31,5 +35,10 @@ final class JobPayload
         if (!preg_match('/^[1-9][0-9]{0,17}$/D', $id)) {
             throw new \InvalidArgumentException('Invalid internal identifier.');
         }
+    }
+
+    private static function validId(mixed $id): bool
+    {
+        return is_string($id) && preg_match('/^[1-9][0-9]{0,17}$/D', $id) === 1;
     }
 }

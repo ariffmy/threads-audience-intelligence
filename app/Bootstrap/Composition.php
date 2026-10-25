@@ -34,11 +34,12 @@ final class Composition
         );
         $operations = new OperationsRepository($pdo);
         $status = new SystemStatus($pdo, $config, new Migrator($pdo, $config->root . '/database/migrations'), $operations);
+        $queue = new QueueComposition($pdo, $config, $logger);
         return new Application(
             $config, $session, $auth, $csrf,
             new AuthenticationController($auth, $csrf, $view),
             new AdminController($auth, $csrf, $session, $view, $config, $status, $operations),
-            $view, $logger,
+            $view, $logger, new \Tai\Modules\Threads\Http\ThreadsController($queue->threads, $session, $csrf, $view, $config),
         );
     }
 }

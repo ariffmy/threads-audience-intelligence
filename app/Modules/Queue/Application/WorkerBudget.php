@@ -7,6 +7,7 @@ namespace Tai\Modules\Queue\Application;
 final class WorkerBudget
 {
     private readonly int $started;
+    private bool $requestUsed = false;
 
     public function __construct(public readonly int $seconds, public readonly int $maxJobs, public readonly int $memoryMb)
     {
@@ -33,5 +34,25 @@ final class WorkerBudget
     public function elapsedMs(): int
     {
         return (int) ((hrtime(true) - $this->started) / 1000000);
+    }
+
+    public function requestTimeoutMs(): int
+    {
+        $remaining = $this->remainingRequestTimeoutMs();
+        if ($this->requestUsed) {
+            throw new \Tai\Modules\Queue\Domain\BudgetExceeded('Provider request budget exhausted.');
+        }
+        $this->requestUsed = true;
+        return $remaining;
+    }
+
+    public function remainingRequestTimeoutMs(): int
+    {
+        $this->assertWithin();
+        $remaining = min(20000, $this->seconds * 1000 - $this->elapsedMs() - 4000);
+        if ($remaining < 1000) {
+            throw new \Tai\Modules\Queue\Domain\BudgetExceeded('Provider persistence reserve exhausted.');
+        }
+        return $remaining;
     }
 }

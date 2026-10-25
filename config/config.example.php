@@ -20,6 +20,10 @@ return [
         'migration_password' => '',
     ],
     'queue' => ['max_seconds' => 25, 'max_jobs' => 20, 'memory_mb' => 96],
+    'threads' => [
+        'fixture_enabled' => false, // Local/test only. Production always refuses; no live transport exists.
+        'keyring_path' => '', // Absolute private JSON file: current key ID and keys map of 64 lowercase hex secrets.
+    ],
     'privacy' => [
         'source_days' => 90, 'export_days' => 7, 'log_days' => 30, 'audit_days' => 90, 'backup_days' => 30,
         // Deletion/replay require an absolute independent private directory

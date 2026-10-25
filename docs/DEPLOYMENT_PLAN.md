@@ -3,6 +3,8 @@
 Status: proposed runbook; no infrastructure inspected or changed.
 Planning date: 24 October 2026.
 
+Phase 3B update (25 October 2026): a local fixture candidate now includes 25 migrations, token/keyring contracts, owned-discussion imports and separate Threads deletion-ledger replay. No live executor or deployment was added. [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md) supplies the current additive-upgrade/partial-DDL/code-rollback, key/ledger restore, target-runtime and pre-live requirements. Do not run old Phase 2 retention/migration code against new Threads data during rollback. This plan remains a proposal and authorizes no staging or production access.
+
 Phase 2 update (25 October 2026): the queue and synthetic ledger commands now exist. Exact executable templates, limits and additive-schema/code-rollback compatibility are in [CRON_SETUP.md](CRON_SETUP.md). Provider/token commands and broader release operations below remain proposals. No cron, deployment or production DB/infrastructure access was performed; see [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md).
 
 Phase 1 local installation and executable commands are in [LOCAL_SETUP.md](LOCAL_SETUP.md). This document describes future staging/release operations: queue, provider, deletion-ledger and token-rotation commands are not Phase 1 capabilities. No deployment or production database access is authorized or performed. See [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md) for remaining target-host validation.

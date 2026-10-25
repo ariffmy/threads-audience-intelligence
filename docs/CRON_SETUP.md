@@ -1,6 +1,8 @@
-# Phase 2 CLI and proposed cPanel cron setup
+# CLI and proposed cPanel cron setup
 
 25 October 2026. Commands exist; no cron or production infrastructure was installed or modified. Run only against an explicitly authorized local or staging database. Production release requires separate approval and the checks below. Only `public/` is web-served; `bin/console.php` is CLI-only and outside that document root. There is no HTTP worker endpoint.
+
+Phase 3B update: the worker also runs fixture-only Threads activation/collection with account fences and one fake request per invocation. No live executor is available. The authenticated Threads page queues bounded imports; activation needs separate long/debug/profile invocations. `privacy:replay-threads-ledger --offset=0` replays the independent Threads ledger in isolated local/test restoration; also replay the original synthetic ledger. Continue returned offsets until done and purge before reopening. See [THREADS_DATA_COLLECTION.md](THREADS_DATA_COLLECTION.md).
 
 ## Local preparation
 
@@ -17,7 +19,7 @@ php bin/console.php migrate:status
 php bin/console.php help
 ```
 
-There are now fifteen immutable migrations. Upgrade applies nine new migrations; a fresh installation applies fifteen. Do not rerun administrator bootstrap on an existing installation. Migrations are never applied through HTTP or by the worker. Use the separate migration identity where configured. A started/failed/checksum-mismatched history stops execution: inspect schema and journal under maintenance, preserve a backup and use a reviewed forward repair or isolated restore. Do not edit an applied file or assume DDL rollback.
+There are now twenty-five immutable migrations. Upgrade from Phase 2 applies ten; Phase 1-to-Phase 2 applies the original nine; a fresh installation applies twenty-five. Do not rerun administrator bootstrap on an existing installation. Migrations are never applied through HTTP or by the worker. Use the separate migration identity where configured. A started/failed/checksum-mismatched history stops execution: inspect schema and journal under maintenance, preserve a backup and use a reviewed forward repair or isolated restore. Do not edit an applied file or assume DDL rollback.
 
 Use the sole administrator's real organization ID from a trusted local database administration session; examples use `<organization-id>`, not an assumed production ID. Queue commands require explicit organization context and a valid configured database. OS access to private CLI configuration is the operator authorization boundary. No multi-user administration interface was added.
 
@@ -28,7 +30,7 @@ php bin/console.php queue:demo --organization=<organization-id> --pages=3
 php -d memory_limit=128M -d max_execution_time=30 bin/console.php queue:run --organization=<organization-id> --max-seconds=25 --max-jobs=20 --memory-mb=96
 ```
 
-`queue:demo` refuses `app.env=production`. An optional `--key=<32-lowercase-hex>` makes a repeated demo dispatch idempotent for its retained lifetime. Output includes only a synthetic job ID or a JSON run summary. Do not insert credentials/text into payloads. The handler allowlist contains no network operations. Open the authenticated System Status page to see real retained job/run values and refresh them.
+`queue:demo` refuses `app.env=production`. An optional `--key=<32-lowercase-hex>` makes a repeated demo dispatch idempotent for its retained lifetime. Output includes only a synthetic job ID or a JSON run summary. Do not insert credentials/text into payloads. The handler allowlist contains only local/synthetic transports. Open the authenticated System Status page to see actual retained job/run values and refresh them.
 
 Private config can override `queue.max_seconds` (1–25), `max_jobs` (1–100), `memory_mb` (16–96), `lease_seconds` (30–300), and bounded retry base/cap. Command options can select limits within those ceilings. Smaller budgets may intentionally claim zero jobs because the worker reserves one second for exit. The 90-second lease outlasts a normal invocation; crash recovery starts on a later invocation after expiry and backoff, rather than immediately repeating work. Never set unlimited PHP execution to solve a slow handler.
 

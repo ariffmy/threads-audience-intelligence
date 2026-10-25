@@ -15,6 +15,7 @@ final class Request
         public readonly bool $secure,
         public readonly ?string $origin = null,
         public readonly bool $expectsJson = false,
+        public readonly string $queryString = '',
     ) {
     }
 
@@ -38,6 +39,7 @@ final class Request
             ($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTPS'] ?? '') === '1',
             $_SERVER['HTTP_ORIGIN'] ?? null,
             str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') || str_ends_with($path, '.json'),
+            $_SERVER['QUERY_STRING'] ?? '',
         );
     }
 

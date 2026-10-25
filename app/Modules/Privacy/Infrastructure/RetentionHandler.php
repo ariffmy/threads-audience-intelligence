@@ -14,14 +14,14 @@ use Tai\Modules\Queue\Infrastructure\QueueRepository;
 
 final readonly class RetentionHandler implements JobHandler
 {
-    public function __construct(private QueueRepository $repository, private QueueService $queue, private PrivacyService $privacy, private RetentionPolicy $policy, private PrivateFileStore $files)
+    public function __construct(private QueueRepository $repository, private QueueService $queue, private PrivacyService $privacy, private RetentionPolicy $policy, private PrivateFileStore $files, private ?\Tai\Modules\Threads\Application\ThreadsPrivacy $threads = null)
     {
     }
 
     public function prepare(Claim $claim, WorkerBudget $budget): array
     {
         $budget->assertWithin();
-        return [];
+        return ['threads_intents' => $this->threads?->prepareSweep($claim->organizationId) ?? []];
     }
 
     public function publish(Claim $claim, array $result): void
@@ -30,9 +30,10 @@ final readonly class RetentionHandler implements JobHandler
         $org = $claim->organizationId;
         $scope = $this->repository->scope($org);
         $blocked = $scope['blocked_at'] !== null;
+        $threadsMore = $this->threads?->sweep($org, $result['threads_intents'] ?? []) ?? false;
         $filesRemoved = $this->files->purge($org);
         $effectsRemoved = $this->repository->execute('DELETE FROM demo_effects WHERE organization_id=? AND (expires_at<=UTC_TIMESTAMP(6) OR created_at<TIMESTAMPADD(DAY,?,UTC_TIMESTAMP(6))) ORDER BY id LIMIT 100', [$org, -$this->policy->sourceDays])->rowCount();
-        $rows = $this->repository->execute("SELECT id FROM jobs WHERE organization_id=? AND job_type<>'retention.sweep'
+        $rows = $this->repository->execute("SELECT id FROM jobs WHERE organization_id=? AND job_type IN ('demo.page','demo.failure')
             AND (?=1 OR (status<>'running' AND (expires_at<=UTC_TIMESTAMP(6) OR created_at<TIMESTAMPADD(DAY,?,UTC_TIMESTAMP(6))))) ORDER BY id LIMIT 100 FOR UPDATE", [$org, (int) $blocked, -$this->policy->logDays])->fetchAll(\PDO::FETCH_COLUMN);
         foreach ($rows as $id) {
             $this->repository->execute('DELETE FROM demo_effects WHERE organization_id=? AND job_id=?', [$org, $id]);
@@ -49,7 +50,7 @@ final readonly class RetentionHandler implements JobHandler
         $runsRemoved = $this->repository->execute("DELETE FROM worker_runs WHERE organization_id=? AND (expires_at<=UTC_TIMESTAMP(6) OR started_at<TIMESTAMPADD(DAY,?,UTC_TIMESTAMP(6))) ORDER BY id LIMIT 100", [$org, -$this->policy->logDays])->rowCount();
         $requestsCompleted = 0;
         if ($blocked) {
-            $remaining = $this->repository->execute("SELECT id FROM jobs WHERE organization_id=? AND job_type<>'retention.sweep' LIMIT 1", [$org])->fetchColumn();
+            $remaining = $this->repository->execute("SELECT id FROM jobs WHERE organization_id=? AND job_type IN ('demo.page','demo.failure') LIMIT 1", [$org])->fetchColumn();
             $fileRemaining = $this->repository->execute('SELECT id FROM private_files WHERE organization_id=? LIMIT 1', [$org])->fetchColumn();
             if ($remaining === false && $fileRemaining === false) {
                 $requestsCompleted = $this->repository->execute("UPDATE deletion_requests SET status='completed',primary_completed_at=UTC_TIMESTAMP(6) WHERE organization_id=? AND status='blocked' ORDER BY id LIMIT 100", [$org])->rowCount();
@@ -58,7 +59,7 @@ final readonly class RetentionHandler implements JobHandler
                 }
             }
         }
-        if (max(count($rows), count($old), $filesRemoved, $effectsRemoved, $auditRemoved, $runsRemoved, $requestsCompleted) === 100) {
+        if ($threadsMore || max(count($rows), count($old), $filesRemoved, $effectsRemoved, $auditRemoved, $runsRemoved, $requestsCompleted) === 100) {
             $this->queue->dispatch($org, 'retention.sweep', [], 'purge-next:' . $claim->id);
         }
         $this->privacy->audit($org, 'retention.swept');

@@ -32,6 +32,7 @@ final class Application
         private readonly AdminController $admin,
         private readonly View $view,
         private readonly Logger $logger,
+        private readonly \Tai\Modules\Threads\Http\ThreadsController $threads,
     ) {
         $this->router = new Router();
         foreach ([
@@ -41,6 +42,11 @@ final class Application
             ['POST', '/profile/password', 'password', true], ['GET', '/settings', 'settings', true],
             ['POST', '/settings', 'saveSettings', true], ['GET', '/status', 'system', true],
             ['GET', '/status.json', 'systemJson', true],
+            ['GET', '/threads', 'threadsPage', true], ['POST', '/threads/connect', 'threadsConnect', true],
+            ['GET', '/threads/oauth/callback', 'threadsCallback', true], ['POST', '/threads/disconnect', 'disconnect', true],
+            ['POST', '/threads/import', 'import', true], ['POST', '/threads/refresh', 'refresh', true],
+            ['POST', '/threads/rotate', 'rotate', true], ['POST', '/threads/delete-source', 'deleteSource', true],
+            ['POST', '/threads/incremental', 'incremental', true],
         ] as [$method, $path, $handler, $protected]) {
             $this->router->add($method, $path, $handler, $protected);
         }
@@ -78,6 +84,10 @@ final class Application
                     'saveSettings' => $this->admin->saveSettings($request, $identity),
                     'system' => $this->admin->system($identity),
                     'systemJson' => $this->admin->systemJson($identity),
+                    'threadsPage' => $this->threads->page($identity),
+                    'threadsConnect' => $this->threads->connect($identity),
+                    'threadsCallback' => $this->threads->callback($request, $identity),
+                    'disconnect', 'import', 'refresh', 'rotate', 'deleteSource', 'incremental' => $this->threads->mutate($request, $identity, $route['handler']),
                 };
             }
         } catch (\Throwable $exception) {
@@ -102,6 +112,9 @@ final class Application
             $this->session->close();
         }
         $response->headers += self::securityHeaders($this->config->secureCookies());
+        if ($request->path === '/threads/oauth/callback') {
+            $response->headers['Referrer-Policy'] = 'no-referrer';
+        }
         $response->headers['X-Request-ID'] = $correlation;
         return $response;
     }

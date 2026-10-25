@@ -10,7 +10,7 @@ use Tai\Shared\Infrastructure\Config;
 /** Independent, content-free signed deletion intents. Protect and back up separately. */
 final readonly class DeletionLedger
 {
-    public function __construct(private Config $config)
+    public function __construct(private Config $config, private bool $threads = false)
     {
     }
 
@@ -30,7 +30,7 @@ final readonly class DeletionLedger
             || Config::within($resolved, $this->config->storage())) {
             throw new \RuntimeException('Deletion ledger must be independent of application storage and public files.');
         }
-        $path = $resolved . '/deletions.jsonl';
+        $path = $resolved . ($this->threads ? '/threads-deletions.jsonl' : '/deletions.jsonl');
         if (is_link($path)) {
             throw new \RuntimeException('Unsafe deletion ledger path.');
         }
@@ -44,8 +44,42 @@ final readonly class DeletionLedger
             throw new \InvalidArgumentException('Invalid deletion request key.');
         }
         $body = json_encode(['organization_id' => $organizationId, 'request_key' => $key, 'target_kind' => 'synthetic_scope', 'at' => gmdate('c')], JSON_THROW_ON_ERROR);
-        $line = json_encode(['body' => $body, 'mac' => hash_hmac('sha256', $body, hex2bin($this->config->get('privacy.ledger_key')))], JSON_THROW_ON_ERROR) . "\n";
+        $this->writeBody($body);
+    }
+
+    public function identifierHash(string $organizationId, string $scopeKey, string $mediaId): string
+    {
+        $this->path(); // Validate key and independent storage before producing suppression references.
+        return hash_hmac('sha256', 'threads:fixture:fixture-app:' . $organizationId . ':' . $scopeKey . ':' . $mediaId, hex2bin($this->config->get('privacy.ledger_key')));
+    }
+
+    public function appendTarget(array $intent): void
+    {
+        if (!$this->threads) {
+            throw new \LogicException('Use the separate Threads ledger.');
+        }
+        self::validateTarget($intent);
+        $keys = array_keys($intent); sort($keys);
+        if ($keys !== ['organization_id', 'request_key', 'scope_key', 'source_hash', 'target_kind']) {
+            throw new \InvalidArgumentException('Unsupported deletion intent fields.');
+        }
+        $this->writeBody(json_encode($intent + ['v' => 2, 'at' => gmdate('c')], JSON_THROW_ON_ERROR));
+    }
+
+    private static function validateTarget(array $body): void
+    {
+        JobPayload::identifier($body['organization_id'] ?? '');
+        if (!in_array($body['target_kind'] ?? '', ['threads_account', 'threads_source', 'threads_organization'], true)
+            || !preg_match('/^[a-f0-9]{32}$/D', $body['request_key'] ?? '') || !preg_match('/^[a-f0-9]{32}$/D', $body['scope_key'] ?? '')
+            || !preg_match('/^[a-f0-9]{64}$/D', $body['source_hash'] ?? '')) {
+            throw new \RuntimeException('Unsupported Threads deletion intent.');
+        }
+    }
+
+    private function writeBody(string $body): void
+    {
         $path = $this->path();
+        $line = json_encode(['body' => $body, 'mac' => hash_hmac('sha256', $body, hex2bin($this->config->get('privacy.ledger_key')))], JSON_THROW_ON_ERROR) . "\n";
         $file = fopen($path, 'ab');
         if ($file === false) {
             throw new \RuntimeException('Cannot open deletion ledger.');
@@ -78,7 +112,7 @@ final readonly class DeletionLedger
                 throw new \RuntimeException('Ledger offset or lock is invalid.');
             }
             for ($count = 0; $count < 100; $count++) {
-                $line = fgets($file, 1024);
+                $line = fgets($file, 2048);
                 if ($line === false) {
                     break;
                 }
@@ -92,6 +126,15 @@ final readonly class DeletionLedger
                 }
                 $body = json_decode($record['body'], true, 8, JSON_THROW_ON_ERROR);
                 JobPayload::identifier($body['organization_id']);
+                if ($this->threads) {
+                    self::validateTarget($body);
+                    $keys = array_keys($body); sort($keys);
+                    if (($body['v'] ?? null) !== 2 || $keys !== ['at', 'organization_id', 'request_key', 'scope_key', 'source_hash', 'target_kind', 'v']) {
+                        throw new \RuntimeException('Unsupported Threads deletion intent.');
+                    }
+                    $apply($body);
+                    continue;
+                }
                 if (($body['target_kind'] ?? null) !== 'synthetic_scope' || !preg_match('/^[a-f0-9]{32}$/D', $body['request_key'] ?? '')) {
                     throw new \RuntimeException('Unsupported deletion intent.');
                 }

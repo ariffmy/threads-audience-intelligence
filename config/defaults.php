@@ -8,7 +8,7 @@ return [
         'url' => 'https://localhost',
         'key' => '',
         'name' => 'Threads Audience Intelligence',
-        'release' => 'phase-2',
+        'release' => 'phase-3b',
         'storage' => dirname(__DIR__) . '/storage',
     ],
     'database' => [
@@ -30,5 +30,9 @@ return [
         'source_days' => 90, 'export_days' => 7, 'log_days' => 30,
         'audit_days' => 90, 'backup_days' => 30,
         'ledger_path' => '', 'ledger_key' => '',
+    ],
+    'threads' => [
+        'fixture_enabled' => false,
+        'keyring_path' => '',
     ],
 ];
