@@ -1,6 +1,6 @@
 # Development phases and testing strategy
 
-Status: Phase 1 preserved; Phase 2 locally implemented/verified at `dfba94e`. Phase 3A research/planning explicitly authorized and completed on 25 October 2026. Phase 3B and later are not authorized.
+Status: Phase 1/2 preserved at `8be29a7`/`dfba94e`; Phase 3A research preserved at `3368ebd`. Phase 3B was separately authorized and implemented for local synthetic testing only. Later phases remain unauthorized.
 Planning date: 24 October 2026.
 
 ## 1. Delivery rules
@@ -54,9 +54,9 @@ Acceptance:
 
 Authorized scope: current official Meta documentation, dated capability matrix, product feasibility/fallback, future integration design and decision report. Deliverables and limitations: [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md). No source, migrations, live calls, dependencies or deployment. All G1–G6 remain open. Discovery's competitor-analysis purpose and reply-analytics de-identification restrictions qualify all later feature proposals, including Phase 6.
 
-### Phase 3B: proposed fixture-first connection and collection
+### Phase 3B: local fixture connection and collection (implemented)
 
-Prerequisites: new explicit implementation approval, Phase 2 acceptance and an agreed eligible product purpose. The recommended increment is fake-transport/synthetic owned-discussion integration, not public profile/history enrichment or identifying analytics. G1/G2/G3/G5 and actual callback/deletion evidence must be satisfied for the relevant real-data pilot, with applicable live-call authorization. No live request is authorized by this plan. External AI remains a later separate scope.
+Implementation approval was explicitly supplied on 25 October 2026 for local synthetic work only. [PHASE3B_COMPLETION_REPORT.md](PHASE3B_COMPLETION_REPORT.md) records the actual increment and verification. Purpose eligibility, G1/G2/G3/G5 and callback/deletion evidence remain prerequisites for a separately authorized real-data pilot. Discovery, identifying analytics and external AI remain outside this implementation. The acceptance list below distinguishes future live evidence from local fixture checks; fixture completion cannot satisfy the live items.
 
 Deliverables: account/grant/credential/capability tables, state-protected OAuth, authenticated token encryption, refresh/reconnect/disconnect, explicit root ownership validation, owned-post imports, available reply/conversation imports, author observations and provenance, source reconciliation, safe pagination and import progress UI. Do not implement posting or reply moderation.
 
@@ -137,4 +137,4 @@ The change satisfies its acceptance criteria, handles failures and authorization
 
 ## 12. Proposed approval scope
 
-Phase 1 and Phase 2 implementation and Phase 3A research received separate authorization. The next proposed scope is the fixture-first Phase 3B described in [PHASE3A_DECISION_REPORT.md](PHASE3A_DECISION_REPORT.md), pending explicit approval and a product-purpose decision. No implementation, credentials, dependency installation, paid/live request or production mutation is authorized by this plan. Later release gates remain enforceable after any phase approval.
+Phase 1/2, Phase 3A research and Phase 3B local synthetic implementation received separate authorization. Stop after Phase 3B review. [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md) describes evidence needed before a possible Phase 3C proposal; it authorizes no live requests, dependencies, external AI, production mutation, push, merge or deployment. Later gates remain enforceable.

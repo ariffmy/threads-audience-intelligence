@@ -37,7 +37,7 @@ set_error_handler(static function (int $severity, string $message, string $file,
 $logger = null;
 try {
     $command = $argv[1] ?? 'help';
-    if (!in_array($command, ['help', 'key:generate', 'config:check', 'db:check', 'migrate', 'migrate:status', 'admin:create', 'maintenance:prune', 'queue:run', 'queue:demo', 'privacy:delete-synthetic', 'privacy:replay-ledger'], true)) {
+    if (!in_array($command, ['help', 'key:generate', 'config:check', 'db:check', 'migrate', 'migrate:status', 'admin:create', 'maintenance:prune', 'queue:run', 'queue:demo', 'privacy:delete-synthetic', 'privacy:replay-ledger', 'privacy:replay-threads-ledger'], true)) {
         throw new UserFacingException('Unknown command. Run php bin/console.php help.');
     }
     $options = [];
@@ -46,7 +46,7 @@ try {
         'queue:run' => ['organization', 'max-seconds', 'max-jobs', 'memory-mb'],
         'queue:demo' => ['organization', 'pages', 'key'],
         'privacy:delete-synthetic' => ['organization', 'key'],
-        'privacy:replay-ledger' => ['offset'],
+        'privacy:replay-ledger', 'privacy:replay-threads-ledger' => ['offset'],
         'maintenance:prune' => ['organization'],
         default => [],
     };
@@ -59,7 +59,7 @@ try {
         $options[$matches[1]] = $matches[2] ?? true;
     }
     if ($command === 'help') {
-        echo "Threads Audience Intelligence · Phase 2\n\n"
+        echo "Threads Audience Intelligence · Phase 3B fixture\n\n"
             . "  key:generate        Print a new application key (store privately).\n"
             . "  config:check        Validate configuration and private storage.\n"
             . "  db:check            Check the configured database connection.\n"
@@ -71,7 +71,8 @@ try {
             . "  queue:run --organization=ID [--max-seconds=25 --max-jobs=20 --memory-mb=96]\n"
             . "  queue:demo --organization=ID [--pages=3 --key=<32 hex>] (local/test only)\n"
             . "  privacy:delete-synthetic --organization=ID --key=<32 hex> (local/test only)\n"
-            . "  privacy:replay-ledger [--offset=0] (isolated local/test restore only)\n";
+            . "  privacy:replay-ledger [--offset=0] (isolated local/test restore only)\n"
+            . "  privacy:replay-threads-ledger [--offset=0] (isolated local/test restore only)\n";
         exit(0);
     }
     if ($command === 'key:generate') {
@@ -89,7 +90,7 @@ try {
             throw new UserFacingException('Invalid numeric command option.');
         }
     }
-    if (in_array($command, ['queue:demo', 'privacy:delete-synthetic', 'privacy:replay-ledger'], true) && $config->get('app.env') === 'production') {
+    if (in_array($command, ['queue:demo', 'privacy:delete-synthetic', 'privacy:replay-ledger', 'privacy:replay-threads-ledger'], true) && $config->get('app.env') === 'production') {
         throw new UserFacingException('Synthetic and restore commands require an isolated local/test environment.');
     }
     if (in_array($command, ['queue:run', 'queue:demo', 'privacy:delete-synthetic', 'maintenance:prune'], true)) {
@@ -145,6 +146,7 @@ try {
         case 'queue:demo':
         case 'privacy:delete-synthetic':
         case 'privacy:replay-ledger':
+        case 'privacy:replay-threads-ledger':
             foreach ($migrator->status() as $row) {
                 if ($row['status'] !== 'applied') {
                     throw new UserFacingException('Apply and verify migrations before running queue/privacy commands.');
@@ -166,6 +168,8 @@ try {
             } elseif ($command === 'privacy:delete-synthetic') {
                 $runtime->privacy->deleteSyntheticScope($options['organization'], $options['key'] ?? '');
                 echo "Synthetic scope blocked; purge queued.\n";
+            } elseif ($command === 'privacy:replay-threads-ledger') {
+                echo json_encode($runtime->threads->privacy->ledger->replay($runtime->threads->privacy->apply(...), (int) ($options['offset'] ?? 0)), JSON_THROW_ON_ERROR) . "\n";
             } else {
                 echo json_encode($runtime->ledger->replay($runtime->privacy->applyIntent(...), (int) ($options['offset'] ?? 0)), JSON_THROW_ON_ERROR) . "\n";
             }

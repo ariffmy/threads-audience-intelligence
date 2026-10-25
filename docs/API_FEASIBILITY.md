@@ -1,7 +1,9 @@
 # API feasibility and evidence register
 
-Status: Phase 3A official-documentation research complete; all live gates remain open. No live account testing.
+Status: Phase 3A official-documentation research preserved; Phase 3B local synthetic contracts implemented. All live gates remain open. No live account testing.
 Research dates: original baseline 24 October 2026; superseding Threads research 25 October 2026 (Asia/Kuala_Lumpur).
+
+Phase 3B does not change any gate disposition: its [completion report](PHASE3B_COMPLETION_REPORT.md) documents fake OAuth/collection, privacy and tests. There is no executable live adapter or actual app/grant/callback/processing evidence. A direct official-documentation recheck was inaccessible, so no new contract verification is claimed beyond the dated Phase 3A research. See [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md) before proposing later work.
 
 ## Current Phase 3A evidence — 25 October 2026
 

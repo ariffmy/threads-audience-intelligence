@@ -104,6 +104,9 @@ final class Config
 
     private function validate(): void
     {
+        if (!is_bool($this->get('threads.fixture_enabled')) || !is_string($this->get('threads.keyring_path'))) {
+            throw new UserFacingException('Invalid Threads fixture configuration.');
+        }
         if (PHP_VERSION_ID < 80500 || !in_array($this->get('app.env'), ['local', 'test', 'production'], true)) {
             throw new UserFacingException('PHP 8.5 and a valid application environment are required.');
         }

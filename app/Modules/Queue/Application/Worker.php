@@ -70,15 +70,19 @@ final class Worker
                 } catch (\Throwable $exception) {
                     $budgetExceeded = $exception instanceof \Tai\Modules\Queue\Domain\BudgetExceeded;
                     $databaseTransient = $exception instanceof \PDOException && in_array((int) ($exception->errorInfo[1] ?? 0), [1205, 1213, 1969], true);
+                    $providerTransient = $exception instanceof \Tai\Modules\Threads\Domain\ProviderFailure && $exception->transient;
                     try {
-                        $this->queue->fail($claim, $budgetExceeded || $databaseTransient || ($exception instanceof JobFailure && $exception->transient),
-                            $budgetExceeded ? 'budget_exhausted' : ($exception instanceof JobFailure ? $exception->getMessage() : 'handler_failed'), (int) ((hrtime(true) - $start) / 1000000));
+                        $this->queue->fail($claim, $budgetExceeded || $databaseTransient || $providerTransient || ($exception instanceof JobFailure && $exception->transient),
+                            $budgetExceeded ? 'budget_exhausted' : ($providerTransient ? $exception->safeCode : ($exception instanceof JobFailure ? $exception->getMessage() : 'handler_failed')), (int) ((hrtime(true) - $start) / 1000000));
                     } catch (LostLease) {
                         // Leave changed/expired ownership to recovery; never publish a late result.
                     }
                     $this->logger->event('worker.job_failed', ['organization_id' => $organizationId, 'correlation_id' => $claim->correlationId, 'status' => 'failed']);
                 }
                 $processed++;
+                if (str_starts_with($claim->type, 'threads.')) {
+                    break; // One provider unit per whole invocation, including failed/ambiguous calls.
+                }
             }
             if (!$this->stopping && $budget->canStart($processed)) {
                 $this->maintenance->prune($organizationId);

@@ -2,6 +2,8 @@
 
 Implemented 25 October 2026 for synthetic jobs/artifacts and operational records. These are provisional product maximums, **not verified Meta policy requirements**. G1–G6 in [API_FEASIBILITY.md](API_FEASIBILITY.md) remain unresolved. No real Threads content, AI output, provider logs or production backups were processed or deleted.
 
+Phase 3B update: the historical Phase 2 sections below remain valid for synthetic targets. Fixture Threads accounts/sources/runs/credentials/grants/request metadata now have scoped read/epoch blocks, bounded purge and a separate version-2 `threads-deletions.jsonl` ledger. Replay both ledgers on an isolated restore. Account/source/Threads-organization suppression covers absent targets and stale in-flight results. No analysis/report derivatives, real provider callback mapping or measured backup erasure is claimed. Exact scope and finite lifecycle limits: [THREADS_DATA_COLLECTION.md](THREADS_DATA_COLLECTION.md), [THREADS_STAGING_TEST_PLAN.md](THREADS_STAGING_TEST_PLAN.md).
+
 ## Configuration and implemented stores
 
 Private PHP config accepts shorter positive retention periods; increasing above these provisional maximums is rejected and requires a reviewed policy/code change. Configuration is the operator-controlled source of truth. Worker startup records a new immutable per-organization policy row when values differ; there is no retention-settings web interface.

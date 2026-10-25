@@ -1,6 +1,8 @@
 # Phase 2 queue architecture
 
-Implemented 25 October 2026. This queue executes synthetic demonstrations and local retention only. No Threads, OpenAI, OAuth, provider-budget or collection handler exists. The immutable SQL migrations and PHP implementation are authoritative; later contracts in the original architecture remain proposals.
+Phase 2 baseline, implemented 25 October 2026. The following sections describe its original synthetic contract. Phase 3B subsequently adds fixture Threads handlers and strengthens account/source fencing as described in [THREADS_DATA_COLLECTION.md](THREADS_DATA_COLLECTION.md). No live provider or OpenAI handler exists.
+
+Phase 3B additions: `ScopeGuard` locks the single scoped account before jobs; job columns snapshot privacy/credential/grant versions; run/root/checkpoint checks fence collection. Five explicitly registered Threads types carry only internal references/steps. One fake request per invocation uses a four-second persistence reserve, account reservation and finite retry/deferral. The old retention selector now targets known demo types and invokes bounded Threads dependency cleanup. Existing demo/lease/crash/privacy behavior remains regression tested. No configuration can activate live HTTP execution. Actual evidence: [PHASE3B_COMPLETION_REPORT.md](PHASE3B_COMPLETION_REPORT.md).
 
 ## Dispatch and states
 

@@ -53,11 +53,21 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
         sort($expected);
         check($tables === $expected);
     });
-    $migrator = new Migrator($pdo, $config->root . '/database/migrations');
+    $phaseTwoDirectory = $directory . '/phase-two-migrations';
+    mkdir($phaseTwoDirectory);
+    foreach (glob($config->root . '/database/migrations/*.sql') as $file) {
+        if ((int) basename($file) <= 15) copy($file, $phaseTwoDirectory . '/' . basename($file));
+    }
+    $migrator = new Migrator($pdo, $phaseTwoDirectory);
     $suite->test('Phase 1 to Phase 2 upgrade preserves identity tables and reruns cleanly', static function () use ($migrator): void {
         check($migrator->migrate() === 9);
         check($migrator->migrate() === 0);
         check(count(array_filter($migrator->status(), fn ($row) => $row['status'] === 'applied')) === 15);
+    });
+    $migrator = new Migrator($pdo, $config->root . '/database/migrations');
+    $suite->test('Phase 2 to Phase 3B additive upgrade and repeat', static function () use ($migrator): void {
+        check($migrator->migrate() === 10 && $migrator->migrate() === 0);
+        check(count(array_filter($migrator->status(), fn ($row) => $row['status'] === 'applied')) === 25);
     });
     $suite->test('Migration checksums reject modified historical SQL', static function () use ($pdo, $directory, $config): void {
         $changed = $directory . '/changed-migrations';

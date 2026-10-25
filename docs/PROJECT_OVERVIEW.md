@@ -1,7 +1,9 @@
 # Threads Audience Intelligence: project overview
 
-Status: Phase 1 preserved at `8be29a7`; Phase 2 synthetic/operational baseline preserved at `dfba94e`. Phase 3A documentation research completed on 25 October 2026; Phase 3B and later require new approval.
+Status: Phase 1 preserved at `8be29a7`; Phase 2 at `dfba94e`; Phase 3A research at `3368ebd`. Phase 3B fixture-only integration was separately authorized on 25 October 2026 and implemented locally. Live collection and later phases remain unauthorized.
 Planning date: 24 October 2026 (Asia/Kuala_Lumpur).
+
+Phase 3B update: [PHASE3B_COMPLETION_REPORT.md](PHASE3B_COMPLETION_REPORT.md) records local OAuth/account/vault/lifecycle, bounded owned-post/reply/conversation contracts, queue fences, scoped privacy and the fixture account page. One account/organization is enforced. There is no live executor, public discovery, person-level profile, OpenAI processing or deployment. The original future analytics proposals below remain gated; fixture approval does not settle business-purpose eligibility or accept a live analytics product.
 
 Phase 2 update: nine additive migrations now support the synthetic queue, finite CLI worker, scoped privacy/retention, independent signed deletion ledger, private synthetic artifact inventory and live operational status. The original collection/analysis/report proposals below remain future work. See [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md), [QUEUE_ARCHITECTURE.md](QUEUE_ARCHITECTURE.md) and [PRIVACY_RETENTION.md](PRIVACY_RETENTION.md) for current contracts and evidence. No provider or production access is authorized.
 
@@ -120,4 +122,4 @@ Performance acceptance uses a synthetic fixture of 100 posts and 10,000 replies:
 5. [DEPLOYMENT_PLAN.md](DEPLOYMENT_PLAN.md): cPanel layout, release, rollback and operations.
 6. [../AGENTS.md](../AGENTS.md): binding engineering constraints and workflow.
 
-Phase 1 and Phase 2 were explicitly approved with the personal-use scope above. Phase 3A research alone was subsequently approved and completed; review its decision report before authorizing Phase 3B. The modular monolith, tenant/account isolation, read-only baseline and bounded cron queue remain the architectural direction. No phase approval authorizes production deployment or bypasses later API/policy gates.
+Phase 1, Phase 2, Phase 3A research and Phase 3B local fixtures received separate approvals. Review the Phase 3B report before any later scope. The modular monolith, tenant/account isolation and bounded cron queue remain the architecture. No phase approval authorizes live processing or production deployment or bypasses API/policy gates.

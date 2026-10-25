@@ -79,7 +79,7 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
             check($page['headers']['referrer-policy'][0] === 'same-origin');
         });
         $suite->test('HTTP protects all application pages and returns JSON 401', static function () use ($client): void {
-            foreach (['/dashboard', '/profile', '/settings', '/status'] as $path) {
+            foreach (['/dashboard', '/profile', '/settings', '/status', '/threads', '/threads/oauth/callback'] as $path) {
                 $response = $client($path, null, 'anonymous');
                 check($response['status'] === 303 && $response['headers']['location'][0] === '/login');
             }
@@ -124,15 +124,27 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
             $response = $client('/status.json?organization_id=2', null, 'admin', ['Accept: application/json']);
             check($response['status'] === 200);
             $data = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
-            check($data['phase'] === 2 && count($data['migrations']) === 15);
+            check($data['phase'] === '3B' && count($data['migrations']) === 25);
             check($data['queue']['last_success_at'] === null && $data['queue']['counts']['ready'] === 0);
-            check($data['integrations']['threads'] === 'Not implemented');
+            check($data['integrations']['threads'] === 'Fixture only; live unavailable');
             foreach (['password', 'app.key', 'token_ciphertext', 'C:\\', 'D:\\'] as $secret) check(!str_contains($response['body'], $secret));
         });
         $suite->test('HTTP administrator and owner authorization is checked on each request', static function () use ($client, $pdo): void {
             $pdo->exec('UPDATE users SET is_installation_admin=0 WHERE id=1');
             try { check($client('/dashboard')['status'] === 403); }
             finally { $pdo->exec('UPDATE users SET is_installation_admin=1 WHERE id=1'); }
+        });
+        $suite->test('HTTP Threads page labels fixtures and mutation/callback routes fail closed', static function () use ($client, $csrf): void {
+            $page = $client('/threads'); check($page['status'] === 200 && str_contains($page['body'], 'Synthetic data only'));
+            $token = $csrf($page);
+            foreach (['connect', 'disconnect', 'import', 'incremental', 'refresh', 'rotate', 'delete-source'] as $action) {
+                check($client('/threads/' . $action, ['account' => '1'])['status'] === 419);
+                check($client('/threads/' . $action)['status'] === 405);
+            }
+            check($client('/threads/connect', ['_csrf' => $token])['status'] === 422);
+            $callback = $client('/threads/oauth/callback?code=fixture-bad');
+            check($callback['status'] === 303 && $callback['headers']['location'][0] === '/threads?authorization=failed');
+            check($callback['headers']['referrer-policy'][0] === 'no-referrer' && !str_contains($callback['body'], '<script'));
         });
         $suite->test('HTTP rejects forged Origin/Host, oversized bodies and unsupported input', static function () use ($client, $csrf): void {
             $token = $csrf($client('/profile'));

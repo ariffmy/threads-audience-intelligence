@@ -62,7 +62,7 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
         return $output;
     };
     try {
-        $suite->test('All fifteen migrations install cleanly in a separate marker-owned local database', static function () use ($queueConfig): void {
+        $suite->test('All twenty-five migrations install cleanly in a separate marker-owned local database', static function () use ($queueConfig): void {
             $name = 'tai_test_' . bin2hex(random_bytes(8)); $marker = bin2hex(random_bytes(16));
             $server = new PDO('mysql:host=' . $queueConfig->get('database.host') . ';port=' . $queueConfig->get('database.port') . ';charset=utf8mb4', $queueConfig->get('database.username'), $queueConfig->get('database.password'), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]);
             $server->exec('CREATE DATABASE `' . $name . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
@@ -71,7 +71,7 @@ return static function (Suite $suite, Config $config, PDO $pdo, string $director
             $server->prepare('INSERT INTO _tai_test_marker VALUES (?)')->execute([$marker]);
             try {
                 $migrator = new \Tai\Shared\Infrastructure\Migrator($server, $queueConfig->root . '/database/migrations');
-                check($migrator->migrate() === 15 && $migrator->migrate() === 0);
+                check($migrator->migrate() === 25 && $migrator->migrate() === 0);
             } finally {
                 if (preg_match('/^tai_test_[a-f0-9]{16}$/D', $name) && $server->query('SELECT DATABASE()')->fetchColumn() === $name
                     && hash_equals($marker, (string) $server->query('SELECT marker FROM _tai_test_marker')->fetchColumn())) {
